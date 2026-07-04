@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(codemie install *)",
+      "Bash(codemie-code init *)",
+      "Bash(npx bmad-method *)",
+      "Bash(uv run *)"
+    ]
+  }
+}
