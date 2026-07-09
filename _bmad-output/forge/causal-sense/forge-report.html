@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Report — Causal Sense</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: #0f0f13; color: #e8e4d8; min-height: 100vh; padding: 2rem; }
+  .page { max-width: 860px; margin: 0 auto; }
+  header { text-align: center; padding: 3rem 0 2rem; border-bottom: 1px solid #2a2a35; margin-bottom: 2.5rem; }
+  header .eyebrow { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: #7c7a8a; margin-bottom: 0.75rem; }
+  header h1 { font-size: 2.4rem; color: #f5f0e8; letter-spacing: -0.02em; }
+  header .subtitle { margin-top: 0.5rem; color: #8a8799; font-style: italic; font-size: 1rem; }
+
+  .seal-row { display: flex; justify-content: center; margin: 2.5rem 0; }
+  .seal-wrap { position: relative; width: 180px; height: 180px; }
+
+  section { margin-bottom: 2.5rem; }
+  section h2 { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: #6a6880; margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid #1e1e28; }
+
+  .summary-box { background: #16161f; border: 1px solid #2a2a38; border-radius: 6px; padding: 1.25rem 1.5rem; font-size: 1rem; line-height: 1.7; color: #c8c4b8; }
+
+  .pipeline { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .pipeline th { text-align: left; padding: 0.5rem 0.75rem; color: #6a6880; font-weight: normal; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; border-bottom: 1px solid #1e1e28; }
+  .pipeline td { padding: 0.65rem 0.75rem; border-bottom: 1px solid #1a1a22; color: #c8c4b8; vertical-align: top; }
+  .pipeline tr:last-child td { border-bottom: none; }
+  .pipeline td:first-child { color: #e8e4d8; font-weight: bold; }
+  .pipeline td.owner { color: #9b8ecf; }
+  .step-num { display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: #1e1e2e; border: 1px solid #3a3a50; text-align: center; line-height: 20px; font-size: 0.7rem; color: #7c7a9a; margin-right: 0.5rem; }
+
+  ul.decisions { list-style: none; padding: 0; }
+  ul.decisions li { padding: 0.6rem 0; border-bottom: 1px solid #1a1a22; font-size: 0.9rem; color: #c8c4b8; display: flex; gap: 0.75rem; line-height: 1.5; }
+  ul.decisions li::before { content: "✦"; color: #5b8a5e; font-size: 0.7rem; margin-top: 0.2rem; flex-shrink: 0; }
+
+  ul.rejected li::before { content: "✕"; color: #8a4a4a; }
+  ul.cracks li::before { content: "⚠"; color: #8a7a3a; }
+
+  .personas { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .persona-chip { background: #16161f; border: 1px solid #2a2a38; border-radius: 4px; padding: 0.4rem 0.8rem; font-size: 0.8rem; color: #9b8ecf; }
+  .persona-chip span { color: #6a6880; margin-right: 0.25rem; }
+
+  .handoff-box { background: #0d1a10; border: 1px solid #2a4a2e; border-radius: 6px; padding: 1rem 1.25rem; font-size: 0.88rem; color: #7ab87e; }
+
+  footer { text-align: center; padding: 2rem 0; color: #3a3848; font-size: 0.75rem; border-top: 1px solid #1a1a22; margin-top: 3rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow">BMad Forge Report</div>
+    <h1>Causal Sense</h1>
+    <div class="subtitle">AI-Native Causal Inference Engine</div>
+  </header>
+
+  <div class="seal-row">
+    <div class="seal-wrap">
+      <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" width="180" height="180">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Outer ring -->
+        <circle cx="90" cy="90" r="84" fill="none" stroke="#3d5c3f" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <!-- Wax seal body -->
+        <circle cx="90" cy="90" r="74" fill="#1a2e1c"/>
+        <!-- Inner decorative ring -->
+        <circle cx="90" cy="90" r="66" fill="none" stroke="#4a7a4e" stroke-width="1"/>
+        <!-- Star points -->
+        <g fill="#2a4a2d">
+          <polygon points="90,16 95,30 110,22 102,36 118,36 106,46 116,58 100,54 98,70 90,58 82,70 80,54 64,58 74,46 62,36 78,36 70,22 85,30"/>
+        </g>
+        <!-- HARDENED text arc -->
+        <path id="arcTop" d="M 22,90 A 68,68 0 0,1 158,90" fill="none"/>
+        <text font-size="11" fill="#7ab87e" letter-spacing="5" font-family="Georgia, serif">
+          <textPath href="#arcTop" startOffset="8%">H A R D E N E D</textPath>
+        </text>
+        <!-- Center text -->
+        <text x="90" y="84" text-anchor="middle" font-size="28" font-weight="bold" fill="#a8d4ac" font-family="Georgia, serif" filter="url(#glow)">✓</text>
+        <text x="90" y="104" text-anchor="middle" font-size="9" fill="#7ab87e" font-family="Georgia, serif" letter-spacing="2">IDEA FORGED</text>
+        <!-- Bottom arc -->
+        <path id="arcBot" d="M 28,110 A 68,68 0 0,0 152,110" fill="none"/>
+        <text font-size="8" fill="#4a6a4e" letter-spacing="2" font-family="Georgia, serif">
+          <textPath href="#arcBot" startOffset="12%">CAUSAL · SENSE · 2026</textPath>
+        </text>
+      </svg>
+    </div>
+  </div>
+
+  <section>
+    <h2>Outcome</h2>
+    <div class="summary-box">
+      The idea is hardened. <strong>Causal Sense</strong> has a single, defensible identity: an AI-native causal inference engine that answers "what actually caused this?" — not a generic data science assistant. All four teammate features are non-redundant and load-bearing in one coherent pipeline. The product is ready for PRD and architecture planning.
+    </div>
+  </section>
+
+  <section>
+    <h2>Locked Pipeline</h2>
+    <table class="pipeline">
+      <thead><tr><th>Step</th><th>Owner</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><span class="step-num">1</span>EDA</td><td class="owner">Rupesh</td><td>Understand data, detect patterns &amp; anomalies</td></tr>
+        <tr><td><span class="step-num">2</span>Market Research</td><td class="owner">Atharva</td><td>Search real-world events as upstream causal candidates — enriches the DAG before it's drafted</td></tr>
+        <tr><td><span class="step-num">3</span>LLM DAG Draft</td><td class="owner">Core</td><td>Build causal graph from data patterns + external context</td></tr>
+        <tr><td><span class="step-num">4</span>Expert Validation</td><td class="owner">Core</td><td>Visual canvas — human confirms or edits the graph</td></tr>
+        <tr><td><span class="step-num">5</span>ATE Estimation</td><td class="owner">Core</td><td>Isolate true causal effect, control for confounders</td></tr>
+        <tr><td><span class="step-num">6</span>What-if Simulator</td><td class="owner">Sahil</td><td>Post-causation intervention simulator — P(Y|do(X))</td></tr>
+        <tr><td><span class="step-num">7</span>NL Insight Builder</td><td class="owner">Aaishwarya</td><td>Plain-language explanation of causal results</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Locked Decisions</h2>
+    <ul class="decisions">
+      <li>Single shared-tools agent architecture — eliminates redundancy, all steps share tools</li>
+      <li>Market research runs upstream (informs DAG construction), not downstream as post-hoc justification</li>
+      <li>Regression/prediction is counterfactual: what-if simulator uses the causal graph, not plain regression</li>
+      <li>Causal inference is the core product identity — all features serve one answer</li>
+      <li>10-day timeline — full 7-step pipeline is feasible to build and demo</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Rejected Options</h2>
+    <ul class="decisions rejected">
+      <li>4 separate per-teammate agents — creates redundant tools and prevents cross-feature tool sharing</li>
+      <li>Market research as downstream explainer — post-hoc rationalization and hallucination risk</li>
+      <li>Generic DS assistant framing — weak on Innovation criterion (20% of score)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Surviving Weak Points</h2>
+    <ul class="decisions cracks">
+      <li>LLMs can hallucinate DAG edges — expert validation canvas must be mandatory, not optional</li>
+      <li>AI tool use (25% of score, highest weight) — Claude's role in each step must be explicitly articulated in the demo and docs</li>
+      <li>7-step pipeline scope — recommend anchoring the demo to one end-to-end dataset (e.g. gold prices) to keep it tight</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Personas &amp; Voices</h2>
+    <div class="personas">
+      <div class="persona-chip"><span>📋</span>John — PM</div>
+      <div class="persona-chip"><span>🏗️</span>Winston — Architect</div>
+      <div class="persona-chip"><span>💻</span>Amelia — Engineer</div>
+      <div class="persona-chip"><span>📊</span>Mary — Business Analyst</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Next Step</h2>
+    <div class="handoff-box">
+      Feed <code>forged-idea.md</code> into <strong>bmad-prd</strong> to define requirements, then <strong>bmad-architecture</strong> for the technical spine. Recommended: use <strong>bmad-spec</strong> first for a fast, no-fluff contract if time is tight.
+    </div>
+  </section>
+
+  <footer>Generated by BMad Forge · Causal Sense · 2026</footer>
+</div>
+</body>
+</html>

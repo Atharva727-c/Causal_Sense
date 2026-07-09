@@ -4,7 +4,9 @@
       "Bash(codemie install *)",
       "Bash(codemie-code init *)",
       "Bash(npx bmad-method *)",
-      "Bash(uv run *)"
+      "Bash(uv run *)",
+      "PowerShell(uv run *)",
+      "Bash(PYTHONIOENCODING=utf-8 uv run --python 3.11 _bmad/scripts/resolve_customization.py --skill .claude/skills/bmad-prd --key workflow)"
     ]
   }
 }
