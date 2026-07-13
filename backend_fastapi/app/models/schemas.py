@@ -42,11 +42,6 @@ class ChatOut(BaseModel):
         return _ms_to_dt(v) or datetime.now(timezone.utc)
 
 
-class ChatListOut(BaseModel):
-    chats: list[ChatOut]
-    total: int
-
-
 # ── Message ──────────────────────────────────────────────────────────────────
 
 class MessageCreate(BaseModel):
@@ -78,36 +73,6 @@ class ChatHistoryOut(BaseModel):
     messages: list[MessageOut]
 
 
-# ── File ─────────────────────────────────────────────────────────────────────
-
-class FileOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
-    original_name: str
-    file_type: str
-    size: int
-    row_count: Optional[int] = None
-    column_count: Optional[int] = None
-    created_at: datetime
-
-    @field_validator("created_at", mode="before")
-    @classmethod
-    def _ts(cls, v: Any) -> datetime:
-        return _ms_to_dt(v) or datetime.now(timezone.utc)
-
-
-class FileDetailOut(FileOut):
-    schema_json: Optional[str] = None
-    preview_json: Optional[str] = None
-
-
-class FileListOut(BaseModel):
-    files: list[FileOut]
-    total: int
-    total_size: int
-
-
 # ── Agent ─────────────────────────────────────────────────────────────────────
 
 class AgentRunCreate(BaseModel):
@@ -131,13 +96,3 @@ class AgentRunOut(BaseModel):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     created_at: datetime
-
-
-class AgentInfo(BaseModel):
-    name: str
-    description: str
-    mode: Optional[str] = None
-
-
-class AgentListOut(BaseModel):
-    agents: list[AgentInfo]

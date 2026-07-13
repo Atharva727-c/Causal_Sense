@@ -8,7 +8,7 @@ import asyncio
 import logging
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,9 +19,9 @@ from app.core.exceptions import NotFoundError
 from app.database import AsyncSessionLocal, get_db
 from app.models.db import Chat, Message
 from app.models.schemas import (
-    ChatCreate, ChatHistoryOut, ChatListOut, ChatOut, ChatRename, MessageCreate,
+    ChatCreate, ChatOut, ChatRename, MessageCreate,
 )
-from app.services.llm import LLMService, get_llm, get_system_prompt
+from app.services.llm import get_llm, get_system_prompt
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chats", tags=["Chats"])
@@ -57,7 +57,7 @@ def _serialize_chat(chat: Chat, last_msg: str | None = None) -> dict:
 
 # ── CRUD ──────────────────────────────────────────────────────────────────────
 
-@router.get("", response_model=ChatListOut, summary="List all chats")
+@router.get("", summary="List all chats")
 async def list_chats(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Chat).order_by(Chat.updated_at.desc())
