@@ -1,0 +1,7 @@
+openai
+pandas
+openpyxl
+requests
+pydantic
+networkx
+python-dotenv

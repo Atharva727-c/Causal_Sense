@@ -1,0 +1,889 @@
+{
+  "data_profile": {
+    "row_count": 5000,
+    "column_count": 24,
+    "columns": [
+      {
+        "name": "Order No",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "4293-1",
+          "5001-1",
+          "5004-1",
+          "5009-1",
+          "5010-1"
+        ],
+        "stats": {
+          "top_values": {
+            "6355-1": 22,
+            "6295-1": 18,
+            "6240-1": 17,
+            "5722-1": 16,
+            "5943-1": 16
+          }
+        }
+      },
+      {
+        "name": "Order Date",
+        "dtype": "str",
+        "role": "date",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "02-09-2014",
+          "24-10-2015",
+          "13-03-2014",
+          "18-02-2013",
+          "13-09-2014"
+        ],
+        "stats": {
+          "min": "2013-02-11",
+          "max": "2017-02-07"
+        }
+      },
+      {
+        "name": "Customer Name",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Vivek Sundaresam",
+          "Shahid Hopkins",
+          "Dennis Pardue",
+          "Sean Wendt",
+          "Christina Vanderzanden"
+        ],
+        "stats": {
+          "top_values": {
+            "Christina Vanderzanden": 51,
+            "Michael Oakman": 50,
+            "Cindy Chapman": 44,
+            "Dave Hallsten": 43,
+            "Christopher Martinez": 39
+          }
+        }
+      },
+      {
+        "name": "Address",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.02,
+        "sample_values": [
+          "152 Bunnerong Road,Eastgardens",
+          "438 Victoria Avenue,Chatswood",
+          "412 Brunswick St,Fitzroy",
+          "145 Ramsay St,Haberfield",
+          "188 Pitt Street,Sydney"
+        ],
+        "stats": {
+          "top_values": {
+            "180 High Street,Windsor": 237,
+            "188 Pitt Street,Sydney": 214,
+            "Macquarie Centre Cnr Herring Road & Waterloo Road,Macquarie Park": 158,
+            "Westfield Sydney,Sydney": 157,
+            "99 Lygon Street,East Brunswick": 141
+          }
+        }
+      },
+      {
+        "name": "City",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Sydney",
+          "Melbourne"
+        ],
+        "stats": {
+          "top_values": {
+            "Sydney": 3584,
+            "Melbourne": 1416
+          }
+        }
+      },
+      {
+        "name": "State",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "NSW",
+          "VIC"
+        ],
+        "stats": {
+          "top_values": {
+            "NSW": 3584,
+            "VIC": 1416
+          }
+        }
+      },
+      {
+        "name": "Customer Type",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Small Business",
+          "Corporate",
+          "Consumer",
+          "Home Office"
+        ],
+        "stats": {
+          "top_values": {
+            "Corporate": 1823,
+            "Home Office": 1232,
+            "Small Business": 1088,
+            "Consumer": 857
+          }
+        }
+      },
+      {
+        "name": "Account Manager",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Tina Carlton",
+          "Natasha Song",
+          "Connor Betts",
+          "Phoebe Gour",
+          "Mihael Khan"
+        ],
+        "stats": {
+          "top_values": {
+            "Connor Betts": 892,
+            "Tina Carlton": 770,
+            "Yvette Biti": 522,
+            "Nicholas Fernandes": 370,
+            "Natasha Song": 358
+          }
+        }
+      },
+      {
+        "name": "Order Priority",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Critical",
+          "Medium",
+          "Not Specified",
+          "Low",
+          "High"
+        ],
+        "stats": {
+          "top_values": {
+            "High": 1124,
+            "Not Specified": 1092,
+            "Medium": 1038,
+            "Critical": 885,
+            "Low": 861
+          }
+        }
+      },
+      {
+        "name": "Product Name",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "UGen Ultra Professional Cordless Optical Suite",
+          "Bagged Rubber Bands",
+          "TechSavi Cordless Navigator Duo",
+          "Artisan Printable Repositionable Plastic Tabs",
+          "Pizazz Drawing Pencil Set"
+        ],
+        "stats": {
+          "top_values": {
+            "Artisan 474 Labels": 136,
+            "Smiths General Use 3-Ring Binders": 126,
+            "Artisan 479 Labels": 112,
+            "Apex Preferred Stainless Steel Scissors": 112,
+            "Alto Memo Cubes": 107
+          }
+        }
+      },
+      {
+        "name": "Product Category",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Office Supplies",
+          "Technology",
+          "Furniture"
+        ],
+        "stats": {
+          "top_values": {
+            "Office Supplies": 3952,
+            "Technology": 879,
+            "Furniture": 169
+          }
+        }
+      },
+      {
+        "name": "Product Container",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Small Box",
+          "Small Pack",
+          "Wrap Bag",
+          "Medium Box",
+          "Large Box"
+        ],
+        "stats": {
+          "top_values": {
+            "Small Box": 2590,
+            "Wrap Bag": 1472,
+            "Small Pack": 571,
+            "Large Box": 141,
+            "Jumbo Drum": 117
+          }
+        }
+      },
+      {
+        "name": "Ship Mode",
+        "dtype": "str",
+        "role": "categorical",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "Regular Air",
+          "Express Air",
+          "Delivery Truck"
+        ],
+        "stats": {
+          "top_values": {
+            "Regular Air": 4236,
+            "Express Air": 647,
+            "Delivery Truck": 117
+          }
+        }
+      },
+      {
+        "name": "Ship Date",
+        "dtype": "str",
+        "role": "date",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "04-09-2014",
+          "26-10-2015",
+          "13-03-2014",
+          "20-02-2013",
+          "17-09-2014"
+        ],
+        "stats": {
+          "min": "2013-02-12",
+          "max": "2017-02-07"
+        }
+      },
+      {
+        "name": "Cost Price",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$156.50",
+          "$0.24",
+          "$42.11",
+          "$5.33",
+          "$1.53"
+        ],
+        "stats": {
+          "min": 0.24,
+          "max": 377.99,
+          "mean": 20.39
+        }
+      },
+      {
+        "name": "Retail Price",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$300.97",
+          "$1.26",
+          "$80.98",
+          "$8.60",
+          "$2.78"
+        ],
+        "stats": {
+          "min": 1.14,
+          "max": 599.99,
+          "mean": 38.29
+        }
+      },
+      {
+        "name": "Profit Margin",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$144.47",
+          "$1.02",
+          "$38.87",
+          "$3.27",
+          "$1.25"
+        ],
+        "stats": {
+          "min": 0.36,
+          "max": 430.18,
+          "mean": 18.0
+        }
+      },
+      {
+        "name": "Order Quantity",
+        "dtype": "float64",
+        "role": "numeric",
+        "missing_pct": 0.02,
+        "sample_values": [
+          "23.0",
+          "8.0",
+          "45.0",
+          "16.0",
+          "49.0"
+        ],
+        "stats": {
+          "min": 1.0,
+          "max": 50.0,
+          "mean": 26.48
+        }
+      },
+      {
+        "name": "Sub Total",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$4,533.52",
+          "$45.20",
+          "$873.32",
+          "$73.52",
+          "$138.46"
+        ],
+        "stats": {
+          "min": 1.88,
+          "max": 31699.82,
+          "mean": 783.59
+        }
+      },
+      {
+        "name": "Discount %",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "2%",
+          "3%",
+          "4%",
+          "1%",
+          "7%"
+        ],
+        "stats": {
+          "min": 0.0,
+          "max": 10.0,
+          "mean": 5.03
+        }
+      },
+      {
+        "name": "Discount $",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$194.83",
+          "$0.00",
+          "$72.23",
+          "$4.35",
+          "$5.95"
+        ],
+        "stats": {
+          "min": 0.0,
+          "max": 6094.9,
+          "mean": 49.43
+        }
+      },
+      {
+        "name": "Order Total",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$4,757.22",
+          "$45.90",
+          "$837.57",
+          "$740.67",
+          "$123.77"
+        ],
+        "stats": {
+          "min": 1.71,
+          "max": 28299.51,
+          "mean": 761.8
+        }
+      },
+      {
+        "name": "Shipping Cost",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$7.18",
+          "$0.70",
+          "$6.19",
+          "$1.34",
+          "$11.15"
+        ],
+        "stats": {
+          "min": 0.49,
+          "max": 69.3,
+          "mean": 5.46
+        }
+      },
+      {
+        "name": "Total",
+        "dtype": "str",
+        "role": "numeric",
+        "missing_pct": 0.0,
+        "sample_values": [
+          "$4,291.55",
+          "$46.91",
+          "$82.58",
+          "$730.92",
+          "$125.97"
+        ],
+        "stats": {
+          "min": 2.85,
+          "max": 26725.06,
+          "mean": 746.31
+        }
+      }
+    ],
+    "description": "This dataset contains order-level sales records for an office supplies, technology, and furniture retailer serving customers in Australian cities such as Sydney and Melbourne. It includes customer and account manager details, product information, order and shipping dates, shipping methods, prices, discounts, quantities, totals, shipping costs, and profit margins. The data can be used to analyze sales performance, customer segments, product profitability, shipping patterns, and discount impacts.",
+    "description_was_generated": true,
+    "domain": "Office Supplies Retail Sales",
+    "timeline": {
+      "has_timeline": true,
+      "date_column": "Order Date",
+      "start_date": "2013-02-11",
+      "end_date": "2017-02-07"
+    }
+  },
+  "market_research": {
+    "mode": "time_bounded",
+    "executive_summary": "The dataset captures order-level activity for an Australian office supplies, technology, and furniture retailer from 2013-02-11 to 2017-02-07, with enough detail to connect product mix, discounts, shipping method, city, account manager, and profit margin. External sources indicate a growing but competitive Australian office supplies market, making the dataset most useful for identifying profitable customer segments, discount thresholds, and shipping-cost leakage before scaling current growth initiatives.",
+    "domain": "Office Supplies Retail Sales",
+    "timeline": {
+      "has_timeline": true,
+      "date_column": "Order Date",
+      "start_date": "2013-02-11",
+      "end_date": "2017-02-07"
+    },
+    "key_findings": [
+      {
+        "title": "Australian office supplies demand outlook is positive but forecast ranges differ",
+        "detail": "Grand View Research expects the Australia office supplies market to grow at a 2.2% CAGR from 2025 to 2033 and reach USD 3.00 billion by 2033, while IMARC estimates the market at USD 3.2 billion in 2025, rising to USD 4.7 billion by 2034 at a 4.13% CAGR. This supports using the 2013-2017 dataset as a baseline for long-term planning, but scenario analysis is needed because published growth estimates differ materially.",
+        "sources": [
+          {
+            "title": "Australia Office Supplies Market Size | Industry Report, 2033",
+            "url": "https://www.grandviewresearch.com/industry-analysis/australia-office-supplies-market-report",
+            "snippet": "The Australia office supplies market is expected to grow at a compound annual growth rate (CAGR) of 2.2 % from 2025 to 2033 to reach USD 3.00 billion by 2033.Read more"
+          },
+          {
+            "title": "Australia Office Supplies Market Size, Share & Growth",
+            "url": "https://www.imarcgroup.com/australia-office-supplies-market",
+            "snippet": "### Australia Office Supplies Market Overview:. > *The Australia office supplies market size reached **USD*** **3.2*****Billion** in*2025*. Looking forward, the market is expected to reach\u00a0**USD*** **4.7*****Billion** by\u00a0\u200b2034\u200b, exhibiting a growth rate **(CAGR) of*** **4.13%** *during*2026-2034*. The growing demand for eco-friendly products due to"
+          }
+        ]
+      },
+      {
+        "title": "The dataset's product scope matches the office supply retail category but extends into higher-ticket business solutions",
+        "detail": "Office supplies and stationery retailers are defined as sellers of office materials such as paper, writing utensils, stationery, and related products, while office supply retailing is also described as a broader business solutions retail activity. The dataset's inclusion of office supplies, technology, and furniture therefore allows analysis beyond consumables into higher-value categories where margin, discounting, and shipping economics may differ sharply.",
+        "sources": [
+          {
+            "title": "Market Overview: Office Supplies and Stationery Retailers",
+            "url": "https://grata.com/market-research/459410-office-supplies-stationery-retailers",
+            "snippet": "# Market Overview: Office Supplies and Stationery Retailers. The Office Supplies and Stationery Retailers industry, classified under NAICS 459410, encompasses establishments primarily engaged in retailing office supplies, stationery, and related products. These retailers provide a variety of office materials, including paper, writing utensils, and "
+          },
+          {
+            "title": "Office supply retailing - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Stationery_store",
+            "snippet": "Title: Office supply retailing - Wikipedia\n# Office supply retailing. The interior of an Office Depot store in Wyoming, United States. **Office supply retailing** is the commercial trade of stationery and other office supplies. An **office supply retailer**, **stationer**, **stationery retailer** or **business solutions retailer** sells things typi"
+          }
+        ]
+      },
+      {
+        "title": "Competitive pricing pressure is a central issue for margin analysis",
+        "detail": "Officeworks is a major Australian reference point: in 2017, Wesfarmers was reported to be considering a sale or IPO of the high-performing Officeworks business potentially worth more than A$1 billion. Officeworks also promotes business-account savings of 5% on many essentials and public price drops on everyday must-haves, indicating that the dataset's discount and profit-margin fields should be analyzed together rather than treating sales growth alone as success.",
+        "sources": [
+          {
+            "title": "Analysis: Wesfarmers to sell Officeworks | OPI - Office Products International",
+            "url": "https://www.opi.net/issues/2017/march-2017/analysis-march-2017/analysis-wesfarmers-to-sell-officeworks",
+            "snippet": "Title: Analysis: Wesfarmers to sell Officeworks | OPI - Office Products International\nOPI looks at the announcement from the Australian conglomerate to divest its high-performing OP business. Wesfarmers is looking to cash in on Officeworks\u2019 success and earn potentially in excess of A$1 billion (US$770 million), either via a sale or an IPO. Officewo"
+          },
+          {
+            "title": "Office Supplies, Stationery, Envelopes & More",
+            "url": "https://www.officeworks.com.au/shop/officeworks/c/office-supplies",
+            "snippet": "Save 5% with Officeworks for Business. Sign up or log in using your existing Business Account to enjoy exclusive pricing on over a thousand business essentials* ...Read more"
+          },
+          {
+            "title": "We've dropped prices on hundreds of must-haves.",
+            "url": "https://www.facebook.com/officeworks/videos/weve-dropped-prices-on-hundreds-of-must-haves/934651022890535",
+            "snippet": "At Officeworks, we've dropped prices on hundreds of everyday must-haves. That's low prices every day and here to stay."
+          }
+        ]
+      },
+      {
+        "title": "Shipping costs can materially change order profitability",
+        "detail": "Australian parcel delivery economics vary by courier, parcel size, and service: Sendle advertises small-business parcel delivery from $4.55 within the same city, while Australia Post's Parcel Post flat-rate packaging is based on size rather than weight for prepaid satchels. Since the dataset includes shipping method, shipping cost, order date, ship date, and profit margin, it can identify city, category, and basket-size combinations where shipping erodes profit, especially for bulky furniture or low-value orders.",
+        "sources": [
+          {
+            "title": "Sendle Pricing for small business parcel delivery | Australia",
+            "url": "https://try.sendle.com/en-au/pricing",
+            "snippet": "Jul 1, 2025 \u2014 Sendle offers insanely cheap shipping costs for small business parcel delivery. Enjoy Sendle pricing from $4.55 within the same city. Starting"
+          },
+          {
+            "title": "Parcel Post - Australia Post",
+            "url": "https://auspost.com.au/business/shipping/parcels-domestic/parcel-post",
+            "snippet": "# Parcel Post. ## Parcel Post packaging options. ### 5kg and under using our flat rate packaging. * 5 sizes from extra small to extra large. #### Parcel Post flat rate packaging. Postage for prepaid satchels is based on size, not weight. Flat rate postage is based on size, not weight. | Parcel Post postage only | **Extra small** | **Small** | **Med"
+          },
+          {
+            "title": "Shipping Costs Australia: Complete Guide 2025 | SKUTOPIA",
+            "url": "https://www.skutopia.com/blog/shipping-costs-australia",
+            "snippet": "# Shipping Costs Australia: A Complete Guide (2025). **Shipping costs in Australia** can make or break your online shopping experience, with unexpected fees turning what seemed like a bargain into an expensive mistake. Whether you're a customer hunting for the best delivery deals or a business owner trying to balance affordable shipping rates with "
+          }
+        ]
+      },
+      {
+        "title": "Post-2017 demand drivers may not be fully reflected in the historical data",
+        "detail": "IMARC highlights growing demand for eco-friendly office products, and a market commentary describes hybrid work, workplace modernization, and sustainable office products as reshaping purchasing behavior. Because the dataset ends in early 2017, it should be used for historical profitability patterns but supplemented with current product attributes and demand assumptions before forecasting today's home-office, hybrid-work, or sustainable-products demand.",
+        "sources": [
+          {
+            "title": "Australia Office Supplies Market Size, Share & Growth",
+            "url": "https://www.imarcgroup.com/australia-office-supplies-market",
+            "snippet": "### Australia Office Supplies Market Overview:. > *The Australia office supplies market size reached **USD*** **3.2*****Billion** in*2025*. Looking forward, the market is expected to reach\u00a0**USD*** **4.7*****Billion** by\u00a0\u200b2034\u200b, exhibiting a growth rate **(CAGR) of*** **4.13%** *during*2026-2034*. The growing demand for eco-friendly products due to"
+          },
+          {
+            "title": "Australia Office Supplies Market Gains Momentum as Hybrid Work and Business Expansion Fuel Demand | Trader",
+            "url": "https://vocal.media/trader/australia-office-supplies-market-gains-momentum-as-hybrid-work-and-business-expansion-fuel-demand",
+            "snippet": "# Australia Office Supplies Market Gains Momentum as Hybrid Work and Business Expansion Fuel Demand. ## Australia\u2019s office supplies industry is evolving rapidly as workplaces modernize, remote work reshapes purchasing behavior, and sustainable office products gain widespread adoption. The Australia office supplies market is undergoing a notable tra"
+          }
+        ]
+      }
+    ],
+    "opportunities": [
+      "Create a profit-after-shipping view by product category, city, shipping method, and account manager to identify which office supplies, technology, and furniture orders are truly profitable.",
+      "Use the discount, quantity, total, and profit-margin fields to build category-specific discount guardrails, especially for price-sensitive office supplies versus higher-ticket technology and furniture.",
+      "Optimize Sydney and Melbourne fulfillment by testing whether same-city shipping, order bundling, or minimum-order thresholds reduce shipping cost as a percentage of order value.",
+      "Develop targeted business-account pricing for repeat customers, but limit offers to customer segments and baskets that remain profitable after discount and shipping cost.",
+      "Add tags for sustainable, recycled, ergonomic, and home-office products in future data so the retailer can compare historical category behavior with newer demand drivers."
+    ],
+    "risks": [
+      "Incumbent price competition and business-account discounts could train customers to expect lower prices, reducing profit if discounting is not tied to margin thresholds.",
+      "Bulky or low-value orders may become unprofitable when shipping cost is allocated at the order or item level, particularly in furniture and small office-supply baskets.",
+      "The 2013-2017 date range predates major shifts in hybrid work, home-office demand, and sustainability-led purchasing, so historical patterns may not generalize to current demand.",
+      "External market-size forecasts differ, creating planning risk if revenue targets are based on one optimistic growth estimate.",
+      "Customer or account-manager concentration could hide performance risk if a small number of accounts drive a disproportionate share of profit."
+    ],
+    "recommendations": [
+      {
+        "recommendation": "Make profit after discount and shipping the primary commercial KPI.",
+        "rationale": "The dataset contains price, discount, quantity, total, shipping cost, and profit margin, so sales performance should be evaluated on net profitability rather than revenue alone. This is especially important where competitive pricing and delivery costs can offset apparent sales gains.",
+        "priority": "high"
+      },
+      {
+        "recommendation": "Implement discount guardrails by category and customer segment.",
+        "rationale": "Analyze historical orders to find discount levels where profit margin deteriorates for office supplies, technology, and furniture. Use those thresholds to approve future promotions, account-manager offers, and business-account pricing.",
+        "priority": "high"
+      },
+      {
+        "recommendation": "Build a shipping-cost leakage dashboard for Sydney, Melbourne, shipping method, and product category.",
+        "rationale": "Compare shipping cost as a percentage of order value and profit by city and method. Use the output to set minimum order values, bundle small office-supply items, and review bulky furniture shipping policies.",
+        "priority": "high"
+      },
+      {
+        "recommendation": "Segment customers into repeat-profitable, repeat-unprofitable, one-time-profitable, and one-time-unprofitable groups.",
+        "rationale": "The customer and account-manager fields allow the retailer to separate loyal profitable accounts from customers who only buy under heavy discounts or high shipping subsidies. This supports targeted retention instead of broad promotions.",
+        "priority": "medium"
+      },
+      {
+        "recommendation": "Refresh future datasets with modern demand attributes.",
+        "rationale": "Add product flags for recycled content, ergonomic use, home-office relevance, and business essential status. This will make it possible to bridge the 2013-2017 order history with newer demand for sustainable and hybrid-work products.",
+        "priority": "medium"
+      }
+    ],
+    "sources": [
+      {
+        "title": "Market Overview: Office Supplies and Stationery Retailers",
+        "url": "https://grata.com/market-research/459410-office-supplies-stationery-retailers",
+        "snippet": "# Market Overview: Office Supplies and Stationery Retailers. The Office Supplies and Stationery Retailers industry, classified under NAICS 459410, encompasses establishments primarily engaged in retailing office supplies, stationery, and related products. These retailers provide a variety of office materials, including paper, writing utensils, and "
+      },
+      {
+        "title": "Australia Office Supplies Market Size | Industry Report, 2033",
+        "url": "https://www.grandviewresearch.com/industry-analysis/australia-office-supplies-market-report",
+        "snippet": "The Australia office supplies market is expected to grow at a compound annual growth rate (CAGR) of 2.2 % from 2025 to 2033 to reach USD 3.00 billion by 2033.Read more"
+      },
+      {
+        "title": "Australia Office Supplies Market Size, Share & Growth",
+        "url": "https://www.imarcgroup.com/australia-office-supplies-market",
+        "snippet": "### Australia Office Supplies Market Overview:. > *The Australia office supplies market size reached **USD*** **3.2*****Billion** in*2025*. Looking forward, the market is expected to reach\u00a0**USD*** **4.7*****Billion** by\u00a0\u200b2034\u200b, exhibiting a growth rate **(CAGR) of*** **4.13%** *during*2026-2034*. The growing demand for eco-friendly products due to"
+      },
+      {
+        "title": "Australia Office Supplies Market Gains Momentum as Hybrid Work and Business Expansion Fuel Demand | Trader",
+        "url": "https://vocal.media/trader/australia-office-supplies-market-gains-momentum-as-hybrid-work-and-business-expansion-fuel-demand",
+        "snippet": "# Australia Office Supplies Market Gains Momentum as Hybrid Work and Business Expansion Fuel Demand. ## Australia\u2019s office supplies industry is evolving rapidly as workplaces modernize, remote work reshapes purchasing behavior, and sustainable office products gain widespread adoption. The Australia office supplies market is undergoing a notable tra"
+      },
+      {
+        "title": "Staples versus Officeworks ?? - Gadgets",
+        "url": "https://forums.whirlpool.net.au/archive/1454656",
+        "snippet": "USA office stationery retail giant \"STAPLES\" have recently bought out Australian corporate stationer \"Corporate Express\" \u2013 a major supplier of office stationery to aussie business owners \u2013 big and small. So, keep your eyes peeled if STAPLES now decides to take on Officeworks and roll out their own \"big box\" retail stores in Australia ! I worked at "
+      },
+      {
+        "title": "Stationery Goods Retailing in Australia Market Size Statistics for 2026 | IBISWorld",
+        "url": "https://www.ibisworld.com/australia/market-size/stationery-goods-retailing/5029",
+        "snippet": "# Stationery Goods Retailing in Australia - Market Size (2020-2030). The market size of the Stationery Goods Retailing industry in Australia is $xx.xx, which is expected to grow at xx% over the next five years. IBISWorld's\u00a0Stationery Goods Retailing in Australia industry coverage\u00a0has got you covered. The Stationery Goods Retailing in Australia Indu"
+      },
+      {
+        "title": "Office supply retailing - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Stationery_store",
+        "snippet": "Title: Office supply retailing - Wikipedia\n# Office supply retailing. The interior of an Office Depot store in Wyoming, United States. **Office supply retailing** is the commercial trade of stationery and other office supplies. An **office supply retailer**, **stationer**, **stationery retailer** or **business solutions retailer** sells things typi"
+      },
+      {
+        "title": "Analysis: Wesfarmers to sell Officeworks | OPI - Office Products International",
+        "url": "https://www.opi.net/issues/2017/march-2017/analysis-march-2017/analysis-wesfarmers-to-sell-officeworks",
+        "snippet": "Title: Analysis: Wesfarmers to sell Officeworks | OPI - Office Products International\nOPI looks at the announcement from the Australian conglomerate to divest its high-performing OP business. Wesfarmers is looking to cash in on Officeworks\u2019 success and earn potentially in excess of A$1 billion (US$770 million), either via a sale or an IPO. Officewo"
+      },
+      {
+        "title": "Australia | History, Cities, Population, Capital, Map, & Facts",
+        "url": "https://www.britannica.com/place/Australia",
+        "snippet": "[Australia](https://www.britannica.com/place/Australia). *   [General considerations](https://www.britannica.com/place/Australia/Geologic-history#ref44981). *   [Tectonic framework](https://www.britannica.com/place/Australia/Geologic-history#ref44982). *   [Chronological summary](https://www.britannica.com/place/Australia/Geologic-history#ref44983)"
+      },
+      {
+        "title": "Australia Country Profile",
+        "url": "https://kids.nationalgeographic.com/geography/countries/article/australia",
+        "snippet": "[![Image 1: National Geographic Kids Logo - Home](https://i.natgeofe.com/n/9809eae8-2750-4ecf-9d48-1de552cf0f78/kids.png?wp=1&w=177&h=75)](https://kids.nationalgeographic.com/). ![Image 3: Bondi Beach, near Sydney, is popular with swimmers.](https://i.natgeofe.com/k/f5110963-ab63-4af4-9d2d-03c46f42231d/australia-bondi-beach.jpg?wp=1&w=718&h=404). !"
+      },
+      {
+        "title": "Australia 2026: Official Rankings and Country Data",
+        "url": "https://www.usnews.com/news/best-countries/australia",
+        "snippet": "Image 1: U.S. News and World Report Logo. # Australia. Image 3#14 inOverall Rankings. ## Overview of Australia. The Commonwealth of Australia occupies the Australian continent. Indigenous people occupied the land for at least 40,000 years before the first British settlements of the 18th century. Australia has a parliamentary democracy government si"
+      },
+      {
+        "title": "Australia: All You Must Know Before You Go (2026)",
+        "url": "https://www.tripadvisor.com/Tourism-g255055-Australia-Vacations.html",
+        "snippet": "Australia TourismAustralia HotelsAustralia Bed and BreakfastAustralia RestaurantsThings to Do in AustraliaAustralia Travel ForumAustralia PhotosAustralia Map. All Australia HotelsAustralia Hotel DealsLast Minute Hotels in AustraliaHotels Near MeBy Hotel Type. W Hotels (Marriott Bonvoy) in AustraliaTop Parks Hotels in AustraliaPark Hyatt Hotels in A"
+      },
+      {
+        "title": "About Australia",
+        "url": "https://www.dfat.gov.au/about-australia",
+        "snippet": "Australia is a stable, democratic and culturally diverse nation with a highly skilled workforce and one of the strongest performing economies in the world."
+      },
+      {
+        "title": "Tourism Australia: Travel to Australia - Australian Tourism ...",
+        "url": "https://www.australia.com/en-us",
+        "snippet": "Bondi](/en-us/places/sydney-and-surrounds/guide-to-bondi.html)  [![Aerial view looking towards Whitehaven Beach from Hill Inlet in the Whitsundays \u00a9  Tourism and Events Queensland](/content/australia/en_us/places/whitsundays-and-surrounds/guide-to-the-whitsundays/_jcr_content/image.adapt.10.HIGH.jpg \"Aerial view looking towards Whitehaven Beach fro"
+      },
+      {
+        "title": "2026 Guide to Australian Shipping Services\u00a0 - ShipBob Australia",
+        "url": "https://www.shipbob.com/au/blog/australia-shipping-services",
+        "snippet": "# 2026 Guide to Australian Shipping Services. Domestic shipping couriers in Australia. * How long will it take to fulfil each order based on the shipping method? In this article, we discuss the benefits of each courier, what type of pricing to expect, how to package and ship yourself, and when it\u2019s time to partner with a 3PL for your shipping needs"
+      },
+      {
+        "title": "Sendle Pricing for small business parcel delivery | Australia",
+        "url": "https://try.sendle.com/en-au/pricing",
+        "snippet": "Jul 1, 2025 \u2014 Sendle offers insanely cheap shipping costs for small business parcel delivery. Enjoy Sendle pricing from $4.55 within the same city. Starting"
+      },
+      {
+        "title": "Parcel Post - Australia Post",
+        "url": "https://auspost.com.au/business/shipping/parcels-domestic/parcel-post",
+        "snippet": "# Parcel Post. ## Parcel Post packaging options. ### 5kg and under using our flat rate packaging. * 5 sizes from extra small to extra large. #### Parcel Post flat rate packaging. Postage for prepaid satchels is based on size, not weight. Flat rate postage is based on size, not weight. | Parcel Post postage only | **Extra small** | **Small** | **Med"
+      },
+      {
+        "title": "Shipping Costs Australia: Complete Guide 2025 | SKUTOPIA",
+        "url": "https://www.skutopia.com/blog/shipping-costs-australia",
+        "snippet": "# Shipping Costs Australia: A Complete Guide (2025). **Shipping costs in Australia** can make or break your online shopping experience, with unexpected fees turning what seemed like a bargain into an expensive mistake. Whether you're a customer hunting for the best delivery deals or a business owner trying to balance affordable shipping rates with "
+      },
+      {
+        "title": "Office Supplies, Stationery, Envelopes & More",
+        "url": "https://www.officeworks.com.au/shop/officeworks/c/office-supplies",
+        "snippet": "Save 5% with Officeworks for Business. Sign up or log in using your existing Business Account to enjoy exclusive pricing on over a thousand business essentials* ...Read more"
+      },
+      {
+        "title": "We've dropped prices on hundreds of must-haves.",
+        "url": "https://www.facebook.com/officeworks/videos/weve-dropped-prices-on-hundreds-of-must-haves/934651022890535",
+        "snippet": "At Officeworks, we've dropped prices on hundreds of everyday must-haves. That's low prices every day and here to stay."
+      }
+    ]
+  },
+  "dag": {
+    "nodes": [
+      {
+        "id": "competitor_pricing_pressure",
+        "label": "Competitor Pricing Pressure",
+        "type": "external_factor",
+        "description": "Market pressure from major office-supply competitors and business-account price promotions."
+      },
+      {
+        "id": "cost_price",
+        "label": "Cost Price",
+        "type": "dataset_variable",
+        "description": "Recorded cost of the product to the retailer."
+      },
+      {
+        "id": "retail_price",
+        "label": "Retail Price",
+        "type": "dataset_variable",
+        "description": "Recorded selling price before order-level discounting."
+      },
+      {
+        "id": "profit_margin",
+        "label": "Profit Margin",
+        "type": "dataset_variable",
+        "description": "Recorded gross margin amount, plausibly driven by the gap between retail price and cost price."
+      },
+      {
+        "id": "order_quantity",
+        "label": "Order Quantity",
+        "type": "dataset_variable",
+        "description": "Number of units ordered."
+      },
+      {
+        "id": "sub_total",
+        "label": "Sub Total",
+        "type": "dataset_variable",
+        "description": "Pre-discount merchandise value of the order or line."
+      },
+      {
+        "id": "discount_pct",
+        "label": "Discount %",
+        "type": "dataset_variable",
+        "description": "Percentage discount applied to the order."
+      },
+      {
+        "id": "discount_dollar",
+        "label": "Discount $",
+        "type": "dataset_variable",
+        "description": "Dollar value of the discount applied."
+      },
+      {
+        "id": "order_total",
+        "label": "Order Total",
+        "type": "dataset_variable",
+        "description": "Recorded order amount after merchandise pricing and discounts."
+      },
+      {
+        "id": "product_container",
+        "label": "Product Container",
+        "type": "dataset_variable",
+        "description": "Packaging or container type used for the product."
+      },
+      {
+        "id": "ship_mode",
+        "label": "Ship Mode",
+        "type": "dataset_variable",
+        "description": "Shipping service selected, such as Regular Air, Express Air, or Delivery Truck."
+      },
+      {
+        "id": "shipping_cost",
+        "label": "Shipping Cost",
+        "type": "dataset_variable",
+        "description": "Recorded cost to ship the order."
+      }
+    ],
+    "edges": [
+      {
+        "source": "competitor_pricing_pressure",
+        "target": "discount_pct",
+        "relationship": "increases",
+        "rationale": "Research notes strong price competition and business-account savings in the Australian office supplies market, making higher discounts a plausible response to competitor pricing pressure.",
+        "confidence": "medium"
+      },
+      {
+        "source": "cost_price",
+        "target": "retail_price",
+        "relationship": "increases",
+        "rationale": "Retailers commonly set prices using cost-plus or margin-based rules, so higher input cost tends to raise the minimum viable retail price.",
+        "confidence": "medium"
+      },
+      {
+        "source": "cost_price",
+        "target": "profit_margin",
+        "relationship": "decreases",
+        "rationale": "For a given retail price, a higher cost price mechanically reduces gross margin.",
+        "confidence": "high"
+      },
+      {
+        "source": "retail_price",
+        "target": "profit_margin",
+        "relationship": "increases",
+        "rationale": "For a given cost price, a higher retail price mechanically increases gross margin.",
+        "confidence": "high"
+      },
+      {
+        "source": "retail_price",
+        "target": "sub_total",
+        "relationship": "increases",
+        "rationale": "Sub total is computed from item prices and quantities, so a higher retail price raises the pre-discount merchandise value when quantity is unchanged.",
+        "confidence": "high"
+      },
+      {
+        "source": "order_quantity",
+        "target": "sub_total",
+        "relationship": "increases",
+        "rationale": "Sub total is computed from price times quantity, so ordering more units raises the pre-discount merchandise value when price is unchanged.",
+        "confidence": "high"
+      },
+      {
+        "source": "discount_pct",
+        "target": "discount_dollar",
+        "relationship": "increases",
+        "rationale": "For a given sub total, a higher percentage discount directly increases the dollar discount amount.",
+        "confidence": "high"
+      },
+      {
+        "source": "sub_total",
+        "target": "discount_dollar",
+        "relationship": "increases",
+        "rationale": "For a given discount percentage, a larger pre-discount merchandise value produces a larger dollar discount.",
+        "confidence": "high"
+      },
+      {
+        "source": "sub_total",
+        "target": "order_total",
+        "relationship": "increases",
+        "rationale": "Order total is based on the merchandise amount before subtracting discounts, so a larger sub total raises the final order total when discounts are unchanged.",
+        "confidence": "high"
+      },
+      {
+        "source": "discount_dollar",
+        "target": "order_total",
+        "relationship": "decreases",
+        "rationale": "A larger dollar discount is subtracted from the merchandise amount, reducing the recorded order total.",
+        "confidence": "high"
+      },
+      {
+        "source": "product_container",
+        "target": "ship_mode",
+        "relationship": "constrains",
+        "rationale": "Bulkier or less parcel-friendly containers can limit feasible shipping services and make truck or non-express handling more likely.",
+        "confidence": "medium"
+      },
+      {
+        "source": "product_container",
+        "target": "shipping_cost",
+        "relationship": "changes",
+        "rationale": "External parcel pricing varies by package size and handling requirements, so the product container can directly affect the shipping cost charged.",
+        "confidence": "high"
+      },
+      {
+        "source": "ship_mode",
+        "target": "shipping_cost",
+        "relationship": "changes",
+        "rationale": "Different shipping services, such as express air, regular air, and delivery truck, have different tariffs and operating costs.",
+        "confidence": "high"
+      }
+    ]
+  },
+  "dag_unavailable_reason": null
+}

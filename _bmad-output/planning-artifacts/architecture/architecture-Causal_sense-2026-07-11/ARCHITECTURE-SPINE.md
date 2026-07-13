@@ -101,7 +101,7 @@ flowchart LR
 | NL Insight Builder | Schema Inference (FR-2) → NL Insight (automatic + conversational), reading any `market_research_result`/`dag`/ATE result already present in the session's PipelineContext per this AD | sync |
 | Causal Insight | EDA → Market Research → DAG Draft → Expert Validation (hard barrier, see AD-6) → ATE Estimation → NL Insight | async job (see AD-6) |
 
-`[ASSUMPTION — supersedes the earlier mode table where Market Research was search-only and DAG/Validation/ATE lived solely under a mode named "Causal Analysis"; the PRD's Mode/"Solution Orchestrator" glossary entries and §4.2 Market Research description predate this split — flagged for the user to reconcile upstream.]`
+`[ASSUMPTION — supersedes the earlier mode table where Market Research was search-only and DAG/Validation/ATE lived solely under a mode named "Causal Analysis". The PRD's Mode/"Solution Orchestrator" glossary entries and §4.2 Market Research description have since been reconciled with this split (2026-07-11).]`
 
 ### AD-8 — Structured error contract, with a fixed Tool-envelope-to-HTTP mapping
 - **Binds:** FR-1, FR-15, all API responses
