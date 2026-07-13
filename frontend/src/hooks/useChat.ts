@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type { Chat, Message, UploadedFile, AgentMode } from '../types'
+import type { Chat, Message, UploadedFile, ActiveMode } from '../types'
 
 const API = '/api'
 
@@ -102,7 +102,7 @@ export function useChat(uploadedFiles: UploadedFile[]) {
   const activeChat = chats.find(c => c.id === activeChatId) ?? chats[0]
 
   const sendMessage = useCallback(
-    async (content: string, mode: AgentMode = null) => {
+    async (content: string, modes: ActiveMode[] = []) => {
       if (!content.trim() || isLoading) return
 
       const localChatId = activeChatId
@@ -181,7 +181,7 @@ export function useChat(uploadedFiles: UploadedFile[]) {
         const res = await fetch(`${API}/chats/${backendChatId}/messages`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: content.trim(), fileContext, mode }),
+          body: JSON.stringify({ content: content.trim(), fileContext, mode: modes[0] ?? null }),
           signal: ctrl.signal,
         })
 

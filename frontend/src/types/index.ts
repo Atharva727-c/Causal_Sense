@@ -1,4 +1,5 @@
 export type AgentMode = 'eda' | 'market_research' | null
+export type ActiveMode = NonNullable<AgentMode>
 
 export interface Message {
   id: string

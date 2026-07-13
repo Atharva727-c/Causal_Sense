@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Chat, AgentMode } from '../types'
+import type { Chat, ActiveMode } from '../types'
 import ChatMessage from './ChatMessage'
 import QuickActions from './QuickActions'
 import MessageInput from './MessageInput'
@@ -9,7 +9,7 @@ interface Props {
   chat: Chat
   chatTitle: string
   isLoading: boolean
-  onSend: (message: string, mode: AgentMode) => void
+  onSend: (message: string, modes: ActiveMode[]) => void
   onUpload: (file: File) => void
 }
 
@@ -252,7 +252,7 @@ export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.38 }}
               >
-                <QuickActions onSelect={m => onSend(m, null)} />
+                <QuickActions onSelect={m => onSend(m, [])} />
               </motion.div>
             </motion.div>
           ) : (
@@ -309,7 +309,7 @@ export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload 
 
       {/* ── Input ── */}
       <div style={{ flexShrink: 0, background: '#f7f6fb' }}>
-        <MessageInput onSend={onSend} onUpload={onUpload} isLoading={isLoading} />
+        <MessageInput key={chat.id} onSend={onSend} onUpload={onUpload} isLoading={isLoading} />
       </div>
     </div>
   )

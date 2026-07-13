@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, KeyboardEvent, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { AgentMode } from '../types'
+import type { ActiveMode } from '../types'
 
 // ── localStorage history ────────────────────────────────────────────────────
 const STORAGE_KEY = 'cs_attach_history'
@@ -155,7 +155,11 @@ const SECTIONS: Section[] = [
 ]
 
 // ── Mode config ──────────────────────────────────────────────────────────────
-const MODE_CONFIG = {
+const MODE_CONFIG: Record<ActiveMode, {
+  label: string; gradient: string; shadow: string; color: string
+  bg: string; ring: string; focusBorder: string
+  bannerBg: string; bannerBorder: string; tooltip: string; icon: ReactNode
+}> = {
   eda: {
     label: 'EDA',
     gradient: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
@@ -182,7 +186,10 @@ const MODE_CONFIG = {
     tooltip: 'Market Research mode — competitive intelligence & scenarios',
     icon: MR_ICON,
   },
-} as const
+}
+
+// Ordered list so banner/chips render consistently
+const MODE_ORDER: ActiveMode[] = ['eda', 'market_research']
 
 // ── Auto-resize hook ─────────────────────────────────────────────────────────
 function useAutoResize(minH: number, maxH: number) {
@@ -199,7 +206,7 @@ function useAutoResize(minH: number, maxH: number) {
 
 // ── Props ────────────────────────────────────────────────────────────────────
 interface Props {
-  onSend: (message: string, mode: AgentMode) => void
+  onSend: (message: string, modes: ActiveMode[]) => void
   onUpload: (file: File) => void
   isLoading: boolean
 }
@@ -208,7 +215,7 @@ interface Props {
 export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
   const [text, setText]                         = useState('')
   const [focused, setFocused]                   = useState(false)
-  const [mode, setMode]                         = useState<AgentMode>(null)
+  const [activeModes, setActiveModes]           = useState<Set<ActiveMode>>(new Set())
   const [isDropdownOpen, setIsDropdownOpen]     = useState(false)
   const [hoveredItem, setHoveredItem]           = useState<string | null>(null)
   const [recentItems, setRecentItems]           = useState<RecentItem[]>(loadHistory)
@@ -218,7 +225,17 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
   const attachBtnRef  = useRef<HTMLButtonElement>(null)
   const { ref: textareaRef, adjust } = useAutoResize(52, 160)
 
-  // Close dropdown on outside click
+  // Toggle a mode on/off
+  const toggleMode = useCallback((m: ActiveMode) => {
+    setActiveModes(prev => {
+      const next = new Set(prev)
+      if (next.has(m)) next.delete(m)
+      else next.add(m)
+      return next
+    })
+  }, [])
+
+  // Close dropdown on outside click / ESC
   useEffect(() => {
     if (!isDropdownOpen) return
     const onDown = (e: MouseEvent) => {
@@ -254,11 +271,11 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
         fileRef.current?.click()
         break
       case 'mode_eda':
-        setMode(prev => (prev === 'eda' ? null : 'eda'))
+        toggleMode('eda')
         addToHistory(item)
         break
       case 'mode_market_research':
-        setMode(prev => (prev === 'market_research' ? null : 'market_research'))
+        toggleMode('market_research')
         addToHistory(item)
         break
     }
@@ -271,10 +288,10 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
         fileRef.current?.click()
         break
       case 'mode_eda':
-        setMode(prev => (prev === 'eda' ? null : 'eda'))
+        toggleMode('eda')
         break
       case 'mode_market_research':
-        setMode(prev => (prev === 'market_research' ? null : 'market_research'))
+        toggleMode('market_research')
         break
     }
   }
@@ -282,31 +299,37 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
   const handleSend = () => {
     const trimmed = text.trim()
     if (!trimmed || isLoading) return
-    onSend(trimmed, mode)
+    onSend(trimmed, [...activeModes])
     setText(''); adjust(true)
   }
   const handleKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
+  // Derived display values
+  const activeModeList = MODE_ORDER.filter(m => activeModes.has(m))
+  const primaryMode    = activeModeList[0] ?? null
+  const primaryCfg     = primaryMode ? MODE_CONFIG[primaryMode] : null
+  const focusBorder    = primaryCfg?.focusBorder ?? '#7C3AED'
+  const focusRing      = primaryCfg?.ring ?? 'rgba(124,58,237,0.07)'
+
   const canSend = text.trim().length > 0 && !isLoading
-  const activeCfg = mode ? MODE_CONFIG[mode] : null
-  const focusBorder = activeCfg?.focusBorder ?? '#7C3AED'
-  const focusRing   = activeCfg?.ring ?? 'rgba(124,58,237,0.07)'
 
   const placeholder =
-    mode === 'eda' ? 'What do you want to explore in your data…'
-    : mode === 'market_research' ? 'Describe the market or industry to research…'
+    activeModes.size === 2 ? 'Analyse data with EDA and market intelligence…'
+    : activeModes.has('eda') ? 'What do you want to explore in your data…'
+    : activeModes.has('market_research') ? 'Describe the market or industry to research…'
     : 'Message CausalSense…'
 
-  // Active mode as a chip color
   const sendGrad =
-    mode === 'eda' ? 'linear-gradient(135deg,#4f46e5,#6366f1)'
-    : mode === 'market_research' ? 'linear-gradient(135deg,#0d9488,#14b8a6)'
+    activeModes.size === 2 ? 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)'
+    : activeModes.has('eda') ? 'linear-gradient(135deg,#4f46e5,#6366f1)'
+    : activeModes.has('market_research') ? 'linear-gradient(135deg,#0d9488,#14b8a6)'
     : 'linear-gradient(135deg,#7C3AED,#6B4EFF)'
+
   const sendShadow =
-    mode === 'eda' ? '0 2px 12px rgba(79,70,229,0.35)'
-    : mode === 'market_research' ? '0 2px 12px rgba(13,148,136,0.35)'
+    activeModes.has('eda') ? '0 2px 12px rgba(79,70,229,0.35)'
+    : activeModes.has('market_research') ? '0 2px 12px rgba(13,148,136,0.35)'
     : '0 2px 12px rgba(124,58,237,0.32)'
 
   return (
@@ -398,8 +421,8 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
 
                   {section.items.map(item => {
                     const hKey = `item-${item.id}`
-                    const isActive = (item.action === 'mode_eda' && mode === 'eda') ||
-                                     (item.action === 'mode_market_research' && mode === 'market_research')
+                    const isActive = (item.action === 'mode_eda' && activeModes.has('eda')) ||
+                                     (item.action === 'mode_market_research' && activeModes.has('market_research'))
                     return (
                       <button
                         key={item.id}
@@ -420,7 +443,9 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
                         <div style={{
                           width: 30, height: 30, borderRadius: 9, flexShrink: 0,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: item.iconBg, color: item.iconColor,
+                          background: isActive ? item.iconColor : item.iconBg,
+                          color: isActive ? 'white' : item.iconColor,
+                          transition: 'background 0.15s, color 0.15s',
                         }}>
                           {item.icon}
                         </div>
@@ -489,43 +514,46 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
           overflow: 'hidden',
         }}
       >
-        {/* Mode active banner */}
+        {/* Mode banners — one per active mode, stacked */}
         <AnimatePresence>
-          {mode && activeCfg && (
-            <motion.div
-              key={mode}
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 26, opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.17, ease: 'easeOut' }}
-              style={{ overflow: 'hidden' }}
-            >
-              <div style={{
-                height: 26, display: 'flex', alignItems: 'center', gap: 7, padding: '0 14px',
-                background: activeCfg.bannerBg,
-                borderBottom: `1px solid ${activeCfg.bannerBorder}`,
-              }}>
-                <span style={{ color: activeCfg.color, display: 'flex' }}>{activeCfg.icon}</span>
-                <span style={{ fontSize: 10.5, fontWeight: 600, color: activeCfg.color, letterSpacing: '0.01em', flex: 1 }}>
-                  {activeCfg.tooltip}
-                </span>
-                <button
-                  onClick={() => setMode(null)}
-                  style={{
-                    width: 14, height: 14, border: 'none', background: 'transparent',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: activeCfg.color, opacity: 0.5, padding: 0,
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.5' }}
-                >
-                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
-                  </svg>
-                </button>
-              </div>
-            </motion.div>
-          )}
+          {activeModeList.map(m => {
+            const cfg = MODE_CONFIG[m]
+            return (
+              <motion.div
+                key={m}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 26, opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.17, ease: 'easeOut' }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{
+                  height: 26, display: 'flex', alignItems: 'center', gap: 7, padding: '0 14px',
+                  background: cfg.bannerBg,
+                  borderBottom: `1px solid ${cfg.bannerBorder}`,
+                }}>
+                  <span style={{ color: cfg.color, display: 'flex' }}>{cfg.icon}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 600, color: cfg.color, letterSpacing: '0.01em', flex: 1 }}>
+                    {cfg.tooltip}
+                  </span>
+                  <button
+                    onClick={() => toggleMode(m)}
+                    style={{
+                      width: 14, height: 14, border: 'none', background: 'transparent',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: cfg.color, opacity: 0.5, padding: 0,
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.5' }}
+                  >
+                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+                    </svg>
+                  </button>
+                </div>
+              </motion.div>
+            )
+          })}
         </AnimatePresence>
 
         {/* Textarea */}
@@ -556,8 +584,8 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
           padding: '4px 10px 10px 12px', gap: 6,
         }}>
 
-          {/* Left: attach button + active mode chip */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Left: attach button + active mode chips */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
 
             {/* ＋ Attach button */}
             <motion.button
@@ -601,43 +629,46 @@ export default function MessageInput({ onSend, onUpload, isLoading }: Props) {
               </motion.svg>
             </motion.button>
 
-            {/* Active mode chip (shown when mode is selected) */}
+            {/* Active mode chips — one per selected mode */}
             <AnimatePresence>
-              {mode && activeCfg && (
-                <motion.div
-                  key={mode}
-                  initial={{ opacity: 0, scale: 0.88, x: -6 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.88, x: -4 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 4,
-                    padding: '3px 8px 3px 7px',
-                    borderRadius: 99, height: 22,
-                    background: activeCfg.gradient,
-                    boxShadow: activeCfg.shadow,
-                  }}
-                >
-                  <span style={{ color: 'white', display: 'flex', opacity: 0.9 }}>{activeCfg.icon}</span>
-                  <span style={{ fontSize: 10.5, fontWeight: 600, color: 'white', letterSpacing: '0.01em', whiteSpace: 'nowrap' }}>
-                    {activeCfg.label}
-                  </span>
-                  <button
-                    onClick={() => setMode(null)}
+              {activeModeList.map(m => {
+                const cfg = MODE_CONFIG[m]
+                return (
+                  <motion.div
+                    key={m}
+                    initial={{ opacity: 0, scale: 0.88, x: -6 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.88, x: -4 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 28 }}
                     style={{
-                      width: 12, height: 12, border: 'none', background: 'transparent',
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: 0, color: 'white', opacity: 0.6,
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      padding: '3px 8px 3px 7px',
+                      borderRadius: 99, height: 22, flexShrink: 0,
+                      background: cfg.gradient,
+                      boxShadow: cfg.shadow,
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.6' }}
                   >
-                    <svg width="7" height="7" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                      <line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/>
-                    </svg>
-                  </button>
-                </motion.div>
-              )}
+                    <span style={{ color: 'white', display: 'flex', opacity: 0.9 }}>{cfg.icon}</span>
+                    <span style={{ fontSize: 10.5, fontWeight: 600, color: 'white', letterSpacing: '0.01em', whiteSpace: 'nowrap' }}>
+                      {cfg.label}
+                    </span>
+                    <button
+                      onClick={() => toggleMode(m)}
+                      style={{
+                        width: 12, height: 12, border: 'none', background: 'transparent',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 0, color: 'white', opacity: 0.6,
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.6' }}
+                    >
+                      <svg width="7" height="7" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                        <line x1="1" y1="1" x2="7" y2="7"/><line x1="7" y1="1" x2="1" y2="7"/>
+                      </svg>
+                    </button>
+                  </motion.div>
+                )
+              })}
             </AnimatePresence>
           </div>
 
