@@ -23,7 +23,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from app.config import get_settings
 from app.core.exceptions import AppError, app_error_handler, generic_error_handler
 from app.database import create_tables
-from app.routers import agents, chats, files
+from app.routers import agents, chats, eda_pipeline, files
 
 _s = get_settings()
 logging.basicConfig(
@@ -104,6 +104,7 @@ _API = "/api"
 app.include_router(chats.router,  prefix=_API)
 app.include_router(files.router,  prefix=_API)
 app.include_router(agents.router, prefix=_API)
+app.include_router(eda_pipeline.router, prefix=_API)
 
 # ── Health / readiness ─────────────────────────────────────────────────────────
 

@@ -41,6 +41,27 @@ class Settings(BaseSettings):
     claude_max_tokens: int = 4096
     claude_timeout: float = 120.0
 
+    # ── EPAM DIAL (Azure OpenAI proxy) — powers the EDA pipeline ───────────────
+    dial_api_key: str = ""
+    dial_endpoint: str = "https://ai-proxy.lab.epam.com"
+    dial_api_version: str = "2024-02-01"
+    dial_chat_deployment: str = "gpt-5.5-2026-04-24-reasoning"
+    dial_embeddings_deployment: str = "text-embedding-3-large"
+    dial_timeout: float = 180.0
+    # Reasoning models reject `temperature`; leave True to omit it on chat calls.
+    dial_is_reasoning_model: bool = True
+    dial_max_completion_tokens: int = 8192
+
+    # ── EDA pipeline ──────────────────────────────────────────────────────────
+    eda_send_plot_images: bool = True          # send PNGs to the vision model
+    eda_vector_top_k: int = 5                  # chunks returned by the retriever
+    eda_chunk_size: int = 1200                 # chars per detailed-file chunk
+    eda_chunk_overlap: int = 150
+    eda_sample_rows: int = 100_000             # passed to explore_dataset.py
+    eda_explorer_script: Path = _ROOT.parent / "tools" / "explore_dataset.py"
+    eda_workspace_dir: Path = _SHARED_DATA / "eda_workspace"
+    eda_react_max_iterations: int = 8
+
     # ── Storage ───────────────────────────────────────────────────────────────
     # Shared with Express backend by default; override via env if needed.
     upload_dir: Path = _SHARED_DATA / "uploads"
@@ -58,9 +79,9 @@ class Settings(BaseSettings):
     max_tool_iterations: int = 10
     enable_mock: bool = True   # word-by-word mock when no API key
 
-    @field_validator("upload_dir", mode="before")
+    @field_validator("upload_dir", "eda_workspace_dir", mode="before")
     @classmethod
-    def ensure_upload_dir(cls, v: Path | str) -> Path:
+    def ensure_dir(cls, v: Path | str) -> Path:
         p = Path(v)
         p.mkdir(parents=True, exist_ok=True)
         return p
