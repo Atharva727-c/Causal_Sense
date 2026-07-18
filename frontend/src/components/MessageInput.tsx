@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, KeyboardEvent, type ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ActiveMode } from '../types'
 

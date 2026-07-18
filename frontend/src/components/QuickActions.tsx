@@ -1,26 +1,22 @@
 import { motion } from 'framer-motion'
+import type { FeatureId } from '../types'
 
 interface Props {
-  onSelect: (prompt: string) => void
+  onFeature: (feature: FeatureId) => void
 }
 
-const ACTIONS = [
-  {
-    gradient: 'linear-gradient(135deg, #7C3AED 0%, #6B4EFF 100%)',
-    glow: 'rgba(124,58,237,0.2)',
-    iconBg: 'rgba(124,58,237,0.08)',
-    iconColor: '#7C3AED',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-        <polyline points="17 8 12 3 7 8"/>
-        <line x1="12" y1="3" x2="12" y2="15"/>
-      </svg>
-    ),
-    label: 'Upload & Analyze',
-    desc: 'CSV, Excel, JSON, Parquet',
-    prompt: 'I will upload a market data file. Please analyze it and provide key descriptive, diagnostic, and predictive insights with 12 probability-weighted scenarios.',
-  },
+interface Action {
+  gradient: string
+  glow: string
+  iconBg: string
+  iconColor: string
+  icon: React.ReactNode
+  label: string
+  desc: string
+  feature: FeatureId
+}
+
+const ACTIONS: Action[] = [
   {
     gradient: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
     glow: 'rgba(79,70,229,0.2)',
@@ -37,7 +33,7 @@ const ACTIONS = [
     ),
     label: 'EDA',
     desc: 'Statistical deep-dive',
-    prompt: 'Run a full exploratory data analysis on the uploaded dataset: data quality summary, univariate/bivariate statistics, anomaly detection, and actionable recommendations.',
+    feature: 'eda',
   },
   {
     gradient: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)',
@@ -53,7 +49,7 @@ const ACTIONS = [
     ),
     label: 'Market Research',
     desc: 'Competitive intelligence',
-    prompt: 'Conduct deep market research: TAM/SAM/SOM analysis, competitive landscape with market share, consumer insights, key trends, and 12 weighted strategic scenarios.',
+    feature: 'market_research',
   },
   {
     gradient: 'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)',
@@ -65,13 +61,32 @@ const ACTIONS = [
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
     ),
-    label: 'Market Forecast',
-    desc: '12-month projections',
-    prompt: 'Generate a comprehensive market forecast with 12-month projections and 12 probability-weighted scenarios covering bull, bear, and base cases with confidence ranges.',
+    label: 'Insight Builder',
+    desc: 'Validated data insights',
+    feature: 'insight_builder',
+  },
+  {
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
+    glow: 'rgba(245,158,11,0.18)',
+    iconBg: 'rgba(245,158,11,0.08)',
+    iconColor: '#d97706',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="5" cy="6" r="2.2"/>
+        <circle cx="19" cy="6" r="2.2"/>
+        <circle cx="12" cy="18" r="2.2"/>
+        <line x1="6.5" y1="7.5" x2="10.5" y2="16.2"/>
+        <line x1="17.5" y1="7.5" x2="13.5" y2="16.2"/>
+        <line x1="7.2" y1="6" x2="16.8" y2="6"/>
+      </svg>
+    ),
+    label: 'Causal Analysis',
+    desc: 'Full pipeline — coming soon',
+    feature: 'causal_analysis',
   },
 ]
 
-export default function QuickActions({ onSelect }: Props) {
+export default function QuickActions({ onFeature }: Props) {
   return (
     <div
       style={{
@@ -79,13 +94,13 @@ export default function QuickActions({ onSelect }: Props) {
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: 11,
         width: '100%',
-        maxWidth: 700,
+        maxWidth: 720,
       }}
     >
       {ACTIONS.map((action, i) => (
         <motion.button
           key={i}
-          onClick={() => onSelect(action.prompt)}
+          onClick={() => onFeature(action.feature)}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.06 + 0.04, type: 'spring', stiffness: 340, damping: 24 }}

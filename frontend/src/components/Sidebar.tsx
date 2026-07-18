@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Chat } from '../types'
 
@@ -6,6 +7,8 @@ interface Props {
   activeChatId: string
   onSelectChat: (id: string) => void
   onNewChat: () => void
+  onRenameChat: (id: string, title: string) => void
+  onDeleteChat: (id: string) => void
 }
 
 function timeAgo(date: Date) {
@@ -41,7 +44,128 @@ const NAV_ITEMS = [
   },
 ]
 
-export default function Sidebar({ chats, activeChatId, onSelectChat, onNewChat }: Props) {
+function ChatRow({
+  chat, isActive, idx, onSelect, onRename, onDelete,
+}: {
+  chat: Chat
+  isActive: boolean
+  idx: number
+  onSelect: () => void
+  onRename: (title: string) => void
+  onDelete: () => void
+}) {
+  const [hovered, setHovered] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(chat.title)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }
+  }, [editing])
+
+  const commit = () => {
+    setEditing(false)
+    if (draft.trim() && draft.trim() !== chat.title) onRename(draft.trim())
+    else setDraft(chat.title)
+  }
+
+  return (
+    <motion.div
+      role="button"
+      tabIndex={0}
+      onClick={() => !editing && onSelect()}
+      onKeyDown={e => e.key === 'Enter' && !editing && onSelect()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -8 }}
+      transition={{ delay: idx * 0.04, type: 'spring', stiffness: 320, damping: 26 }}
+      whileHover={!isActive ? { backgroundColor: 'rgba(255,255,255,0.04)' } : {}}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 12px', borderRadius: 9, marginBottom: 2, cursor: 'pointer',
+        background: isActive ? 'rgba(124,58,237,0.16)' : 'transparent',
+        borderLeft: `2px solid ${isActive ? '#9B7EFF' : 'transparent'}`,
+        paddingLeft: isActive ? 10 : 12,
+      }}
+    >
+      <div style={{ minWidth: 0, flex: 1 }}>
+        {editing ? (
+          <input
+            ref={inputRef}
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={e => {
+              e.stopPropagation()
+              if (e.key === 'Enter') commit()
+              if (e.key === 'Escape') { setDraft(chat.title); setEditing(false) }
+            }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', fontSize: 12.5, fontWeight: 500,
+              color: '#c4b5fd', background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(155,126,255,0.4)', borderRadius: 6,
+              padding: '2px 6px', outline: 'none', marginBottom: 2,
+            }}
+          />
+        ) : (
+          <p style={{
+            fontSize: 12.5, fontWeight: isActive ? 500 : 400,
+            color: isActive ? '#c4b5fd' : 'rgba(255,255,255,0.65)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            marginBottom: 2,
+          }}>
+            {chat.title}
+          </p>
+        )}
+        <p style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.2)' }}>
+          {timeAgo(chat.createdAt)}
+        </p>
+      </div>
+      {(hovered || isActive) && !editing && (
+        <span style={{ display: 'flex', gap: 2, marginLeft: 6, flexShrink: 0 }}>
+          <button
+            title="Rename chat"
+            onClick={e => { e.stopPropagation(); setDraft(chat.title); setEditing(true) }}
+            style={{
+              width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 5, border: 'none', background: 'transparent', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.4)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#c4b5fd' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.4)' }}
+          >
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 3l3 3L7 16H4v-3L14 3z"/>
+            </svg>
+          </button>
+          <button
+            title="Delete chat"
+            onClick={e => { e.stopPropagation(); onDelete() }}
+            style={{
+              width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 5, border: 'none', background: 'transparent', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.4)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#f87171' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.4)' }}
+          >
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h14M8 6V4h4v2M5 6l1 11h8l1-11M8.5 9v5M11.5 9v5"/>
+            </svg>
+          </button>
+        </span>
+      )}
+    </motion.div>
+  )
+}
+
+export default function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onRenameChat, onDeleteChat }: Props) {
   return (
     <aside
       style={{
@@ -179,58 +303,17 @@ export default function Sidebar({ chats, activeChatId, onSelectChat, onNewChat }
       {/* ── Chat list ── */}
       <div className="sidebar-scroll" style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
         <AnimatePresence initial={false}>
-        {chats.map((chat, idx) => {
-          const isActive = chat.id === activeChatId
-          return (
-            <motion.div
-              key={chat.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => onSelectChat(chat.id)}
-              onKeyDown={e => e.key === 'Enter' && onSelectChat(chat.id)}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.04, type: 'spring', stiffness: 320, damping: 26 }}
-              whileHover={!isActive ? { backgroundColor: 'rgba(255,255,255,0.04)' } : {}}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '8px 12px', borderRadius: 9, marginBottom: 2, cursor: 'pointer',
-                background: isActive ? 'rgba(124,58,237,0.16)' : 'transparent',
-                borderLeft: `2px solid ${isActive ? '#9B7EFF' : 'transparent'}`,
-                paddingLeft: isActive ? 10 : 12,
-              }}
-              className="group"
-            >
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{
-                  fontSize: 12.5, fontWeight: isActive ? 500 : 400,
-                  color: isActive ? '#c4b5fd' : 'rgba(255,255,255,0.65)',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  marginBottom: 2,
-                }}>
-                  {chat.title}
-                </p>
-                <p style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.2)' }}>
-                  {timeAgo(chat.createdAt)}
-                </p>
-              </div>
-              <span
-                style={{
-                  marginLeft: 6, width: 18, height: 18,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: 5, flexShrink: 0,
-                  opacity: isActive ? 0.55 : 0,
-                  color: 'rgba(255,255,255,0.4)',
-                  transition: 'opacity 0.14s',
-                }}
-              >
-                <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor">
-                  <circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/>
-                </svg>
-              </span>
-            </motion.div>
-          )
-        })}
+        {chats.map((chat, idx) => (
+          <ChatRow
+            key={chat.id}
+            chat={chat}
+            isActive={chat.id === activeChatId}
+            idx={idx}
+            onSelect={() => onSelectChat(chat.id)}
+            onRename={title => onRenameChat(chat.id, title)}
+            onDelete={() => onDeleteChat(chat.id)}
+          />
+        ))}
         </AnimatePresence>
       </div>
 

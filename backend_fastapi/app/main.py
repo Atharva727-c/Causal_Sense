@@ -13,17 +13,28 @@ Ports: Express 3001 · FastAPI 8001
 """
 from __future__ import annotations
 import logging
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
+# The market_research and insight_builder packages live at the repo root.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+# Those packages read credentials from os.environ (DIAL_*, TAVILY_API_KEY);
+# load both env files regardless of the CWD uvicorn was started from.
+load_dotenv(_REPO_ROOT / ".env")
+load_dotenv(_REPO_ROOT / "backend_fastapi" / ".env")
+
 from app.config import get_settings
 from app.core.exceptions import AppError, app_error_handler, generic_error_handler
 from app.database import create_tables
-from app.routers import agents, chats, eda_pipeline, files
+from app.routers import agents, chats, eda_pipeline, files, market_research
 
 _s = get_settings()
 logging.basicConfig(
@@ -105,6 +116,18 @@ app.include_router(chats.router,  prefix=_API)
 app.include_router(files.router,  prefix=_API)
 app.include_router(agents.router, prefix=_API)
 app.include_router(eda_pipeline.router, prefix=_API)
+app.include_router(market_research.router, prefix=_API)
+
+# Insight Builder ships its own FastAPI app (insight_builder/api/main.py);
+# mount it wholesale so the frontend reaches it through this server at
+# /api/insight/... . Guarded so a broken optional dependency can't take the
+# whole backend down during the demo.
+try:
+    from insight_builder.api.main import app as _insight_app
+    app.mount("/api/insight", _insight_app)
+    logger.info("Insight Builder API mounted at /api/insight")
+except Exception:  # pragma: no cover
+    logger.exception("Insight Builder API could not be mounted — endpoints unavailable")
 
 # ── Health / readiness ─────────────────────────────────────────────────────────
 

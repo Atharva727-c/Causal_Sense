@@ -2,12 +2,16 @@ import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Message } from '../types'
+import MarketResearchResult, { type MarketResearchData } from './results/MarketResearchResult'
+import EdaResult, { type EdaData } from './results/EdaResult'
+import InsightsResult, { type InsightsData } from './results/InsightsResult'
 
 interface Props {
   message: Message
+  onFollowup?: (question: string) => void
 }
 
-export default function ChatMessage({ message }: Props) {
+export default function ChatMessage({ message, onFollowup }: Props) {
   if (message.role === 'user') {
     return (
       <motion.div
@@ -75,7 +79,13 @@ export default function ChatMessage({ message }: Props) {
           position: 'relative',
         }}
       >
-        {message.content.length > 0 ? (
+        {message.kind === 'market_research' && message.data ? (
+          <MarketResearchResult data={message.data as MarketResearchData} />
+        ) : message.kind === 'eda' && message.data ? (
+          <EdaResult data={message.data as EdaData} onFollowup={onFollowup} />
+        ) : message.kind === 'insights' && message.data ? (
+          <InsightsResult data={message.data as InsightsData} />
+        ) : message.content.length > 0 ? (
           <div className="prose max-w-none">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
             {message.streaming && <span className="streaming-cursor" />}

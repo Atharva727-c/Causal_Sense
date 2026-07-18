@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Chat, ActiveMode } from '../types'
+import type { Chat, ActiveMode, FeatureId } from '../types'
 import ChatMessage from './ChatMessage'
 import QuickActions from './QuickActions'
 import MessageInput from './MessageInput'
@@ -11,6 +11,8 @@ interface Props {
   isLoading: boolean
   onSend: (message: string, modes: ActiveMode[]) => void
   onUpload: (file: File) => void
+  onFeature: (feature: FeatureId) => void
+  onFollowup: (question: string) => void
 }
 
 function TypingDots() {
@@ -28,7 +30,7 @@ function TypingDots() {
   )
 }
 
-export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload }: Props) {
+export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload, onFeature, onFollowup }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [inWelcome, setInWelcome] = useState(false)
@@ -252,7 +254,7 @@ export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.38 }}
               >
-                <QuickActions onSelect={m => onSend(m, [])} />
+                <QuickActions onFeature={onFeature} />
               </motion.div>
             </motion.div>
           ) : (
@@ -263,7 +265,7 @@ export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload 
               style={{ padding: '28px 28px 8px', maxWidth: 860, margin: '0 auto', width: '100%' }}
             >
               {chat.messages.map(msg => (
-                <ChatMessage key={msg.id} message={msg} />
+                <ChatMessage key={msg.id} message={msg} onFollowup={onFollowup} />
               ))}
 
               <AnimatePresence>

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type { Chat, Message, UploadedFile, ActiveMode } from '../types'
+import type { Chat, Message, UploadedFile, ActiveMode, FeatureId } from '../types'
 
 const API = '/api'
 
@@ -63,15 +63,15 @@ Key drivers include: macroeconomic indicators, **consumer sentiment index (curre
 > Confidence intervals widen beyond 6 months. Refresh this analysis quarterly.`,
 ]
 
+// One stable id shared by the initial chat and activeChatId — generating two
+// different ids here meant the first chat could never receive messages.
+const INITIAL_CHAT_ID = `local-${genId()}`
+
 export function useChat(uploadedFiles: UploadedFile[]) {
-  const [chats, setChats] = useState<Chat[]>(() => {
-    const id = `local-${genId()}`
-    return [{ id, title: 'New Chat', messages: [], createdAt: new Date() }]
-  })
-  const [activeChatId, setActiveChatId] = useState<string>(() => {
-    const id = `local-${genId()}`
-    return id
-  })
+  const [chats, setChats] = useState<Chat[]>(() => [
+    { id: INITIAL_CHAT_ID, title: 'New Chat', messages: [], createdAt: new Date() },
+  ])
+  const [activeChatId, setActiveChatId] = useState<string>(INITIAL_CHAT_ID)
   const [isLoading, setIsLoading] = useState(false)
 
   // Maps local chat IDs to backend IDs
@@ -101,6 +101,158 @@ export function useChat(uploadedFiles: UploadedFile[]) {
 
   const activeChat = chats.find(c => c.id === activeChatId) ?? chats[0]
 
+  // ── Shared message helpers ────────────────────────────────────────────────
+  // Tracks which chats already have a backend EDA session (for follow-ups).
+  const edaSessions = useRef(new Map<string, string>())
+
+  const appendMessages = useCallback((localChatId: string, msgs: Message[]) => {
+    setChats(prev =>
+      prev.map(c => (c.id === localChatId ? { ...c, messages: [...c.messages, ...msgs] } : c))
+    )
+  }, [])
+
+  const patchMessage = useCallback(
+    (localChatId: string, msgId: string, patch: Partial<Message>) => {
+      setChats(prev =>
+        prev.map(c =>
+          c.id === localChatId
+            ? { ...c, messages: c.messages.map(m => (m.id === msgId ? { ...m, ...patch } : m)) }
+            : c
+        )
+      )
+    },
+    []
+  )
+
+  // Feature intent in a typed message (used when no mode chip is active).
+  const detectFeature = (content: string): FeatureId | null => {
+    const t = content.toLowerCase()
+    if (/market\s*research/.test(t)) return 'market_research'
+    if (/\beda\b|exploratory\s+data/.test(t)) return 'eda'
+    if (/insight\s*builder/.test(t)) return 'insight_builder'
+    return null
+  }
+
+  // Pick the dataset a message refers to: a filename mentioned in the text
+  // (e.g. "run market research on insurance.csv") beats the latest upload.
+  const resolveTargetFile = useCallback(
+    (question: string): UploadedFile | undefined => {
+      const t = question.toLowerCase()
+      return uploadedFiles.find(f => t.includes(f.name.toLowerCase())) ?? uploadedFiles[0]
+    },
+    [uploadedFiles]
+  )
+
+  // Runs a feature pipeline and patches the placeholder message with the result.
+  // Used by both the quick-action cards and typed messages in feature mode.
+  const executeFeature = useCallback(
+    async (
+      feature: Exclude<FeatureId, 'causal_analysis'>,
+      localChatId: string,
+      streamId: string,
+      question: string,
+      opts: { forceAnalyze?: boolean } = {}
+    ) => {
+      const fail = (msg: string) =>
+        patchMessage(localChatId, streamId, {
+          streaming: false,
+          content: `**Something went wrong.** ${msg}`,
+        })
+
+      const file = resolveTargetFile(question)
+      const edaSession = edaSessions.current.get(localChatId)
+      if (!file && !(feature === 'eda' && edaSession)) {
+        patchMessage(localChatId, streamId, {
+          streaming: false,
+          content: 'Please **upload a dataset first** (CSV or Excel) — then run this analysis again.',
+        })
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        if (feature === 'eda') {
+          if (edaSession && !opts.forceAnalyze) {
+            // Existing session → treat the message as a follow-up question.
+            const res = await fetch(`${API}/eda/ask`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ session_id: edaSession, question }),
+            })
+            const data = await res.json()
+            if (!res.ok || data.ok === false) fail(data.error ?? `HTTP ${res.status}`)
+            else patchMessage(localChatId, streamId, { streaming: false, kind: 'eda', data, content: 'EDA follow-up' })
+          } else {
+            const res = await fetch(`${API}/eda/analyze`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ session_id: localChatId, file_id: file!.id }),
+            })
+            const data = await res.json()
+            if (!res.ok || data.ok === false) {
+              fail(data.error ?? data.message ?? `EDA failed (HTTP ${res.status})`)
+            } else {
+              edaSessions.current.set(localChatId, localChatId)
+              patchMessage(localChatId, streamId, { streaming: false, kind: 'eda', data, content: 'EDA complete' })
+            }
+          }
+        } else if (feature === 'market_research') {
+          const res = await fetch(`${API}/market-research/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file_id: file!.id }),
+          })
+          const data = await res.json()
+          if (!res.ok) {
+            fail(data.message ?? `Market research failed (HTTP ${res.status})`)
+          } else {
+            patchMessage(localChatId, streamId, {
+              streaming: false,
+              kind: 'market_research',
+              data,
+              content: 'Market research complete',
+            })
+          }
+        } else if (feature === 'insight_builder') {
+          const blobRes = await fetch(`${API}/files/${file!.id}/download`)
+          if (!blobRes.ok) return fail(`Could not read the uploaded file (HTTP ${blobRes.status}).`)
+          const blob = await blobRes.blob()
+          const form = new FormData()
+          form.append('file', new File([blob], file!.name))
+          const sessRes = await fetch(`${API}/insight/datasets`, { method: 'POST', body: form })
+          const sess = await sessRes.json()
+          if (!sessRes.ok) return fail(sess.detail ?? `Insight session failed (HTTP ${sessRes.status})`)
+
+          patchMessage(localChatId, streamId, {
+            content:
+              '_Insight Builder pipeline is running — a full run typically takes **30–40 minutes**. Leave this tab open…_',
+          })
+          const res = await fetch(`${API}/insight/datasets/${sess.session_id}/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+          })
+          const data = await res.json()
+          if (!res.ok) {
+            fail(data.detail ?? `Insight pipeline failed (HTTP ${res.status})`)
+          } else {
+            patchMessage(localChatId, streamId, {
+              streaming: false,
+              kind: 'insights',
+              data,
+              content: 'Insight Builder complete',
+            })
+          }
+        }
+      } catch (err) {
+        fail(`Backend not reachable — is the FastAPI server running on port 8001? (${(err as Error).message})`)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [patchMessage, resolveTargetFile]
+  )
+
   const sendMessage = useCallback(
     async (content: string, modes: ActiveMode[] = []) => {
       if (!content.trim() || isLoading) return
@@ -125,6 +277,19 @@ export function useChat(uploadedFiles: UploadedFile[]) {
         )
       )
       setIsLoading(true)
+
+      // Feature routing: an active mode chip (EDA / Market Research) or an
+      // explicit feature request in the text goes to the real pipeline —
+      // never to the plain chat LLM (which mocks without an Anthropic key).
+      const feature: FeatureId | null = modes.includes('market_research')
+        ? 'market_research'
+        : modes.includes('eda')
+          ? 'eda'
+          : detectFeature(content)
+      if (feature && feature !== 'causal_analysis') {
+        await executeFeature(feature, localChatId, streamId, content.trim())
+        return
+      }
 
       abortRef.current?.abort()
       const ctrl = new AbortController()
@@ -236,7 +401,111 @@ export function useChat(uploadedFiles: UploadedFile[]) {
         finalizeStream()
       }
     },
-    [activeChatId, isLoading, uploadedFiles]
+    [activeChatId, isLoading, uploadedFiles, executeFeature]
+  )
+
+  // ── Feature runs (EDA / Market Research / Insight Builder) ────────────────
+  const runFeature = useCallback(
+    async (feature: FeatureId) => {
+      if (isLoading) return
+      const localChatId = activeChatId
+      const latestFile = uploadedFiles[0]
+
+      if (feature === 'causal_analysis') {
+        appendMessages(localChatId, [
+          { id: genId(), role: 'user', content: 'Run Causal Analysis', timestamp: new Date() },
+          {
+            id: genId(),
+            role: 'assistant',
+            content:
+              '**Causal Analysis — coming soon.** This will chain EDA, Market Research and the Insight Builder into one end-to-end causal pipeline. For now, try the individual features.',
+            timestamp: new Date(),
+          },
+        ])
+        return
+      }
+
+      if (!latestFile) {
+        appendMessages(localChatId, [
+          {
+            id: genId(),
+            role: 'assistant',
+            content: 'Please **upload a dataset first** (CSV or Excel) — then run this analysis again.',
+            timestamp: new Date(),
+          },
+        ])
+        return
+      }
+
+      const labels: Record<string, string> = {
+        eda: `Run EDA on ${latestFile.name}`,
+        market_research: `Run market research on ${latestFile.name}`,
+        insight_builder: `Build validated insights from ${latestFile.name}`,
+      }
+      const streamId = `stream-${genId()}`
+      appendMessages(localChatId, [
+        { id: genId(), role: 'user', content: labels[feature], timestamp: new Date() },
+        { id: streamId, role: 'assistant', content: '', timestamp: new Date(), streaming: true },
+      ])
+      setIsLoading(true)
+      // Card click always (re)runs the full analysis, even if a session exists.
+      await executeFeature(feature, localChatId, streamId, labels[feature], { forceAnalyze: true })
+    },
+    [activeChatId, isLoading, uploadedFiles, appendMessages, executeFeature]
+  )
+
+  // Follow-up question against an existing EDA session (from suggestion chips).
+  const sendEdaFollowup = useCallback(
+    async (question: string) => {
+      const localChatId = activeChatId
+      if (!edaSessions.current.get(localChatId) || isLoading) return
+      const streamId = `stream-${genId()}`
+      appendMessages(localChatId, [
+        { id: genId(), role: 'user', content: question, timestamp: new Date() },
+        { id: streamId, role: 'assistant', content: '', timestamp: new Date(), streaming: true },
+      ])
+      setIsLoading(true)
+      await executeFeature('eda', localChatId, streamId, question)
+    },
+    [activeChatId, isLoading, appendMessages, executeFeature]
+  )
+
+  // ── Chat management (rename / delete) ─────────────────────────────────────
+  const renameChat = useCallback((id: string, title: string) => {
+    const trimmed = title.trim()
+    if (!trimmed) return
+    setChats(prev => prev.map(c => (c.id === id ? { ...c, title: trimmed } : c)))
+    const backendId = backendIds.current.get(id)
+    if (backendId) {
+      fetch(`${API}/chats/${backendId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: trimmed }),
+      }).catch(() => {})
+    }
+  }, [])
+
+  const deleteChat = useCallback(
+    (id: string) => {
+      // Keep updaters pure: compute the next state here, never call another
+      // setState inside the setChats updater (React discards impure updaters).
+      const remaining = chats.filter(c => c.id !== id)
+      if (remaining.length === 0) {
+        const localId = `local-${genId()}`
+        setChats([{ id: localId, title: 'New Chat', messages: [], createdAt: new Date() }])
+        setActiveChatId(localId)
+      } else {
+        setChats(remaining)
+        if (id === activeChatId) setActiveChatId(remaining[0].id)
+      }
+      const backendId = backendIds.current.get(id)
+      backendIds.current.delete(id)
+      edaSessions.current.delete(id)
+      if (backendId) {
+        fetch(`${API}/chats/${backendId}`, { method: 'DELETE' }).catch(() => {})
+      }
+    },
+    [chats, activeChatId]
   )
 
   const newChat = useCallback(() => {
@@ -264,7 +533,11 @@ export function useChat(uploadedFiles: UploadedFile[]) {
     activeChatId,
     setActiveChatId,
     sendMessage,
+    runFeature,
+    sendEdaFollowup,
     newChat,
+    renameChat,
+    deleteChat,
     isLoading,
   }
 }

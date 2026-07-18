@@ -54,6 +54,8 @@ export function useFiles() {
       }
     } catch {
       /* fall through to local fallback */
+    } finally {
+      setIsUploading(false)
     }
 
     // Local-only fallback (backend not available)

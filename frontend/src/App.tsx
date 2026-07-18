@@ -6,7 +6,7 @@ import { useFiles } from './hooks/useFiles'
 
 export default function App() {
   const { files, uploadFile, removeFile, isUploading, totalUsed, totalCapacity } = useFiles()
-  const { chats, activeChat, activeChatId, setActiveChatId, sendMessage, newChat, isLoading } = useChat(files)
+  const { chats, activeChat, activeChatId, setActiveChatId, sendMessage, runFeature, sendEdaFollowup, newChat, renameChat, deleteChat, isLoading } = useChat(files)
 
   return (
     <div style={{ display: 'flex', width: '100%', height: '100vh', overflow: 'hidden' }}>
@@ -15,6 +15,8 @@ export default function App() {
         activeChatId={activeChatId}
         onSelectChat={setActiveChatId}
         onNewChat={newChat}
+        onRenameChat={renameChat}
+        onDeleteChat={deleteChat}
       />
       <ChatArea
         chat={activeChat}
@@ -22,6 +24,8 @@ export default function App() {
         isLoading={isLoading}
         onSend={sendMessage}
         onUpload={uploadFile}
+        onFeature={runFeature}
+        onFollowup={sendEdaFollowup}
       />
       <DataPanel
         files={files}
