@@ -1,0 +1,46 @@
+import json
+import pandas as pd
+
+df = pd.read_csv(r"{{ dataset_path }}")
+numerator_col = {{ numerator_col|tojson }}
+denominator_col = {{ denominator_col|tojson }}
+group_col = {{ group_col|pyjson }}
+
+def _trim_percentile(df_in, cols, lower_q=0.025, upper_q=0.975):
+    mask = pd.Series(True, index=df_in.index)
+    removed = {}
+    for c in cols:
+        lo, hi = df_in[c].quantile(lower_q), df_in[c].quantile(upper_q)
+        col_mask = (df_in[c] >= lo) & (df_in[c] <= hi)
+        removed[c] = int((~col_mask).sum())
+        mask &= col_mask
+    return df_in[mask], removed
+
+clean_cols = [numerator_col, denominator_col] + ([group_col] if group_col else [])
+pre_trim = df[clean_cols].dropna()
+pre_trim = pre_trim[pre_trim[denominator_col] != 0]
+clean, outliers_removed = _trim_percentile(pre_trim, [numerator_col, denominator_col])
+
+if len(clean) < 5:
+    print(json.dumps({"test": "ratio", "error": "insufficient_rows"}))
+elif group_col:
+    grouped = clean.groupby(group_col).apply(
+        lambda g: g[numerator_col].sum() / g[denominator_col].sum()
+    )
+    overall = clean[numerator_col].sum() / clean[denominator_col].sum()
+    print(json.dumps({
+        "test": "ratio_by_group",
+        "overall_ratio": float(overall),
+        "group_ratios": {str(k): float(v) for k, v in grouped.items()},
+        "outliers_removed": outliers_removed,
+        "columns": {"numerator_col": numerator_col, "denominator_col": denominator_col, "group_col": group_col},
+    }))
+else:
+    overall = clean[numerator_col].sum() / clean[denominator_col].sum()
+    print(json.dumps({
+        "test": "ratio",
+        "overall_ratio": float(overall),
+        "n": int(len(clean)),
+        "outliers_removed": outliers_removed,
+        "columns": {"numerator_col": numerator_col, "denominator_col": denominator_col},
+    }))
