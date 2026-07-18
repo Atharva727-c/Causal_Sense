@@ -1,0 +1,35 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+anthropic>=0.40.0
+sqlalchemy[asyncio]>=2.0.36
+aiosqlite>=0.20.0
+python-multipart>=0.0.20
+aiofiles>=24.1.0
+pandas>=2.2.0
+openpyxl>=3.1.5
+pyarrow>=18.0.0
+python-dotenv>=1.0.1
+httpx>=0.27.2
+
+# ── EDA pipeline: DIAL LLM + LangGraph ReAct agent ──────────────────────────
+openai>=1.55.0
+langchain>=0.3.7
+langchain-openai>=0.2.8
+langgraph>=0.2.50
+
+# ── EDA pipeline: vector store (Chroma) + hybrid rerank ─────────────────────
+chromadb>=0.5.20
+langchain-chroma>=0.1.4
+rank-bm25>=0.2.2
+
+# ── EDA pipeline: notebook execution + plotting (used by explore_dataset.py) ─
+matplotlib>=3.9.0
+seaborn>=0.13.2
+scipy>=1.14.0
+statsmodels>=0.14.4
+nbformat>=5.10.0
+nbclient>=0.10.0
+ipykernel>=6.29.0
+tabulate>=0.9.0

@@ -1,7 +1,38 @@
-.venv/
+# ── Node / frontend ───────────────────────────────────────────────────────────
+node_modules/
+dist/
+.next/
+.nuxt/
+*.tsbuildinfo
+
+# ── Python / FastAPI backend ──────────────────────────────────────────────────
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
 .ruff_cache/
 .pytest_cache/
-.mypy_cache/
+
+# ── Environment files ─────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# Keep .env.example files
+
+# ── Database & uploads ────────────────────────────────────────────────────────
+backend/data/
+backend_fastapi/data/
+
+# ── OS / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
