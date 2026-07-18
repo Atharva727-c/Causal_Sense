@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(ls /c/insight_builder; ls /c/insight_builder/templates | head; cat /c/insight_builder/__init__.py 2>/dev/null | head; ls /c/insight_builder/../ 2>/dev/null | head -30)"
+    ]
+  }
+}

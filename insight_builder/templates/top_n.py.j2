@@ -1,0 +1,39 @@
+import json
+import pandas as pd
+
+df = pd.read_csv(r"{{ dataset_path }}")
+categorical_col = {{ categorical_col|tojson }}
+numeric_col = {{ numeric_col|tojson }}
+
+def _trim_percentile(df_in, col, lower_q=0.025, upper_q=0.975):
+    lo, hi = df_in[col].quantile(lower_q), df_in[col].quantile(upper_q)
+    mask = (df_in[col] >= lo) & (df_in[col] <= hi)
+    return df_in[mask], int((~mask).sum())
+
+pre_trim = df[[categorical_col, numeric_col]].dropna()
+clean, outliers_removed = _trim_percentile(pre_trim, numeric_col)
+
+if len(clean) < {{ min_group_size }} or clean[categorical_col].nunique() < 2:
+    print(json.dumps({"test": "top_n", "error": "insufficient_rows"}))
+else:
+    agg = clean.groupby(categorical_col)[numeric_col].agg(["sum", "mean", "count"])
+    agg = agg[agg["count"] >= 1]
+    top = agg.sort_values("sum", ascending=False).head(10)
+    bottom = agg.sort_values("sum", ascending=True).head(10)
+
+    print(json.dumps({
+        "test": "top_n",
+        "n": int(len(clean)),
+        "overall_p75": float(clean[numeric_col].quantile(0.75)),
+        "overall_p90": float(clean[numeric_col].quantile(0.90)),
+        "top": [
+            {"group": str(idx), "sum": float(row["sum"]), "mean": float(row["mean"]), "count": int(row["count"])}
+            for idx, row in top.iterrows()
+        ],
+        "bottom": [
+            {"group": str(idx), "sum": float(row["sum"]), "mean": float(row["mean"]), "count": int(row["count"])}
+            for idx, row in bottom.iterrows()
+        ],
+        "outliers_removed": {numeric_col: outliers_removed},
+        "columns": {"categorical_col": categorical_col, "numeric_col": numeric_col},
+    }))

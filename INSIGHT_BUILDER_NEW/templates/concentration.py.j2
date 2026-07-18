@@ -1,0 +1,49 @@
+import json
+import pandas as pd
+
+df = pd.read_csv(r"{{ dataset_path }}")
+categorical_col = {{ categorical_col|tojson }}
+numeric_col = {{ numeric_col|tojson }}
+PARETO_TARGET = 0.80
+
+def _trim_percentile(df_in, col, lower_q=0.025, upper_q=0.975):
+    lo, hi = df_in[col].quantile(lower_q), df_in[col].quantile(upper_q)
+    mask = (df_in[col] >= lo) & (df_in[col] <= hi)
+    return df_in[mask], int((~mask).sum())
+
+pre_trim = df[[categorical_col, numeric_col]].dropna()
+pre_trim = pre_trim[pre_trim[numeric_col] > 0]
+clean, outliers_removed = _trim_percentile(pre_trim, numeric_col)
+
+if len(clean) < {{ min_group_size }} or clean[categorical_col].nunique() < 2:
+    print(json.dumps({"test": "concentration", "error": "insufficient_rows"}))
+else:
+    totals = clean.groupby(categorical_col)[numeric_col].sum().sort_values(ascending=False)
+    counts = clean.groupby(categorical_col)[numeric_col].count()
+    grand_total = totals.sum()
+    n_groups = len(totals)
+
+    cumulative_share = (totals.cumsum() / grand_total)
+    groups_for_target = int((cumulative_share < PARETO_TARGET).sum()) + 1
+    groups_for_target = min(groups_for_target, n_groups)
+    pct_of_groups_for_target = groups_for_target / n_groups
+
+    top_20pct_n = max(1, round(n_groups * 0.20))
+    share_of_top_20pct = float(totals.head(top_20pct_n).sum() / grand_total)
+
+    print(json.dumps({
+        "test": "concentration",
+        "n": int(len(clean)),
+        "n_groups": n_groups,
+        "grand_total": float(grand_total),
+        "groups_for_80pct": groups_for_target,
+        "pct_of_groups_for_80pct": float(pct_of_groups_for_target),
+        "top_20pct_group_count": int(top_20pct_n),
+        "share_of_top_20pct_groups": share_of_top_20pct,
+        "top_groups": [
+            {"group": str(idx), "sum": float(val), "share": float(val / grand_total), "count": int(counts[idx])}
+            for idx, val in totals.head(10).items()
+        ],
+        "outliers_removed": {numeric_col: outliers_removed},
+        "columns": {"categorical_col": categorical_col, "numeric_col": numeric_col},
+    }))
