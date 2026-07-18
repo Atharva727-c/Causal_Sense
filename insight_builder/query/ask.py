@@ -13,28 +13,22 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
-
 from insight_builder.execution.runner import run_script
+from insight_builder.ingestion.loader import load_dataset, write_coerced_csv
 from insight_builder.ingestion.schema import coerced_dataframe, infer_schema
 from insight_builder.qa.language_guard import strip_editorializing
 from insight_builder.query.query_agent import generate_query_code, render_query_script
 
 
-def ask_question(csv_path: str, question: str, audit_dir: str | None = None) -> dict[str, Any]:
-    raw_df = pd.read_csv(csv_path)
+def ask_question(dataset_path: str, question: str, audit_dir: str | None = None) -> dict[str, Any]:
+    raw_df = load_dataset(dataset_path)
     schema = infer_schema(raw_df)
     clean_df = coerced_dataframe(raw_df, schema)
 
     audit_path = Path(audit_dir) if audit_dir else Path(tempfile.mkdtemp(prefix="query_audit_"))
     audit_path.mkdir(parents=True, exist_ok=True)
 
-    coerced_csv_path = audit_path / "coerced_dataset.csv"
-    datetime_cols = [n for n, p in schema.items() if p.role == "datetime"]
-    to_write = clean_df.copy()
-    for c in datetime_cols:
-        to_write[c] = to_write[c].dt.strftime("%Y-%m-%d")
-    to_write.to_csv(coerced_csv_path, index=False)
+    coerced_csv_path = write_coerced_csv(clean_df, schema, audit_path)
 
     code_body = generate_query_code(question, schema)
     if code_body is None:

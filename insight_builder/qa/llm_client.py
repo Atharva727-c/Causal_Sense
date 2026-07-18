@@ -29,6 +29,16 @@ _RETRY_BASE_DELAY_SECONDS = 1.0
 _RETRYABLE_ERRORS = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
 
 
+_REQUIRED_ENV_VARS = ("DIAL_API_KEY", "DIAL_API_VERSION", "DIAL_ENDPOINT", "DIAL_MODEL")
+
+
+def llm_available() -> bool:
+    """Whether the LLM endpoint is configured at all. LLM-backed pipeline
+    nodes are conditional on this, so an unconfigured environment skips them
+    cleanly instead of raising KeyError mid-pipeline."""
+    return all(os.environ.get(v) for v in _REQUIRED_ENV_VARS)
+
+
 def get_client() -> AzureOpenAI:
     global _client
     if _client is None:

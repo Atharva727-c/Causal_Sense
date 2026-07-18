@@ -11,7 +11,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-SCRIPT_TIMEOUT_SECONDS = 15
+SCRIPT_TIMEOUT_SECONDS = 120
 
 
 def run_script(script_text: str, audit_dir: Path) -> dict[str, Any]:

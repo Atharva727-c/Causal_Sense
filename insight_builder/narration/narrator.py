@@ -129,11 +129,44 @@ def _narrate_body(insight: dict[str, Any]) -> str:
     return f"Validated finding on {cols} (p={p:.3f})."
 
 
-def narrate_no_trend(result: dict[str, Any]) -> str:
-    """For a trend candidate that was tested but didn't clear the significance/effect
-    gates — states the flat/no-trend finding explicitly instead of silent omission."""
+def narrate_not_significant(result: dict[str, Any]) -> str:
+    """For any testable hypothesis (trend, group difference, correlation, or
+    association) that ran cleanly but didn't clear the significance/effect
+    gates — states the null result explicitly instead of silent omission."""
+    test = result["test"]
     cols = result["columns"]
-    return (
-        f"No significant trend detected for {cols['numeric_col']} over {cols['datetime_col']} "
-        f"(rho={result['statistic']:.2f}, p={result['p_value']:.3f}) — values appear flat/noisy across the period."
-    ) + _outlier_note(result)
+    p = result.get("p_value")
+    p_str = f"p={p:.3f}" if p is not None else "p unavailable"
+
+    if test == "spearman_trend":
+        return (
+            f"No significant trend detected for {cols['numeric_col']} over {cols['datetime_col']} "
+            f"(rho={result['statistic']:.2f}, {p_str}) — values appear flat/noisy across the period."
+        ) + _outlier_note(result)
+
+    if test in ("anova", "welch_t"):
+        return (
+            f"No significant difference in {cols['numeric_col']} across {cols['categorical_col']} "
+            f"groups ({p_str})."
+        ) + _outlier_note(result)
+
+    if test == "pearson":
+        return (
+            f"No significant correlation between {cols['col_a']} and {cols['col_b']} ({p_str})."
+        ) + _outlier_note(result)
+
+    if test == "chi_square":
+        return (
+            f"No significant association between {cols['col_a']} and {cols['col_b']} ({p_str})."
+        ) + _outlier_note(result)
+
+    return f"No significant finding on {cols} ({p_str})." + _outlier_note(result)
+
+
+def narrate_test_failed(result: dict[str, Any]) -> str:
+    """For a candidate whose script never produced a usable result (subprocess
+    timeout, crash, or malformed output) — reported explicitly so a transient
+    execution failure is visible in the report instead of vanishing with no
+    trace, the same way a passed/failed statistical gate would be."""
+    cols = result.get("columns", {})
+    return f"Test on {cols} could not be completed ({result.get('error', 'unknown error')})."
