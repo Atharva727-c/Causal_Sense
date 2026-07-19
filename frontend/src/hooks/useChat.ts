@@ -127,10 +127,35 @@ export function useChat(uploadedFiles: UploadedFile[]) {
   // Feature intent in a typed message (used when no mode chip is active).
   const detectFeature = (content: string): FeatureId | null => {
     const t = content.toLowerCase()
+    if (/causal\s*(analysis|report|pipeline)/.test(t)) return 'causal_analysis'
     if (/market\s*research/.test(t)) return 'market_research'
     if (/\beda\b|exploratory\s+data/.test(t)) return 'eda'
     if (/insight\s*builder/.test(t)) return 'insight_builder'
     return null
+  }
+
+  const CAUSAL_STAGE_LABELS: Record<string, string> = {
+    eda: 'EDA (notebook + vision analysis)',
+    market_research: 'Market research (web + causal DAG)',
+    insight_builder: 'Insight Builder (validated statistics — the long stage)',
+    synthesis: 'Causal synthesis report',
+  }
+
+  const causalProgressMarkdown = (run: {
+    stages: Record<string, { status: string; seconds: number | null }>
+    elapsed_seconds?: number
+  }) => {
+    const icon: Record<string, string> = { pending: '⬜', running: '⏳', done: '✅', failed: '❌' }
+    const lines = Object.entries(run.stages).map(([k, v]) => {
+      const secs = v.seconds != null ? ` _(${Math.round(v.seconds)}s)_` : ''
+      return `${icon[v.status] ?? '⬜'} ${CAUSAL_STAGE_LABELS[k] ?? k}${secs}`
+    })
+    const mins = run.elapsed_seconds != null ? Math.round(run.elapsed_seconds / 60) : 0
+    return (
+      `**Causal Analysis pipeline running** — chains EDA → Market Research → Insight Builder → synthesis.\n\n` +
+      lines.join('\n\n') +
+      `\n\n_Elapsed ${mins} min. A full run typically takes 30–45 minutes (the Insight Builder stage dominates). Leave this tab open._`
+    )
   }
 
   // Pick the dataset a message refers to: a filename mentioned in the text
@@ -147,7 +172,7 @@ export function useChat(uploadedFiles: UploadedFile[]) {
   // Used by both the quick-action cards and typed messages in feature mode.
   const executeFeature = useCallback(
     async (
-      feature: Exclude<FeatureId, 'causal_analysis'>,
+      feature: FeatureId,
       localChatId: string,
       streamId: string,
       question: string,
@@ -213,6 +238,52 @@ export function useChat(uploadedFiles: UploadedFile[]) {
               content: 'Market research complete',
             })
           }
+        } else if (feature === 'causal_analysis') {
+          // Long-running (30-45 min): start the backend run, then poll in a
+          // detached loop so the chat is NOT locked while it works.
+          const res = await fetch(`${API}/causal/runs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file_id: file!.id }),
+          })
+          const started = await res.json()
+          if (!res.ok) return fail(started.message ?? `Causal run failed to start (HTTP ${res.status})`)
+
+          const runId = started.run_id
+          const poll = async () => {
+            try {
+              const r = await fetch(`${API}/causal/runs/${runId}`)
+              const run = await r.json()
+              if (!r.ok) throw new Error(run.message ?? `HTTP ${r.status}`)
+              if (run.status === 'completed') {
+                patchMessage(localChatId, streamId, {
+                  streaming: false,
+                  kind: 'causal',
+                  data: run.result,
+                  content: 'Causal analysis complete',
+                })
+                return
+              }
+              if (run.status === 'failed') {
+                patchMessage(localChatId, streamId, {
+                  streaming: false,
+                  content: `**Causal analysis failed** at the ${run.stage} stage: ${run.error}`,
+                })
+                return
+              }
+              patchMessage(localChatId, streamId, { content: causalProgressMarkdown(run) })
+              setTimeout(poll, 10_000)
+            } catch (err) {
+              patchMessage(localChatId, streamId, {
+                streaming: false,
+                content: `**Lost contact with the causal run** (${(err as Error).message}). The run may still be going on the server — run id \`${runId}\`.`,
+              })
+            }
+          }
+          patchMessage(localChatId, streamId, {
+            content: '**Causal Analysis pipeline starting…** (EDA → Market Research → Insight Builder → synthesis)',
+          })
+          setTimeout(poll, 3000)
         } else if (feature === 'insight_builder') {
           const blobRes = await fetch(`${API}/files/${file!.id}/download`)
           if (!blobRes.ok) return fail(`Could not read the uploaded file (HTTP ${blobRes.status}).`)
@@ -286,7 +357,7 @@ export function useChat(uploadedFiles: UploadedFile[]) {
         : modes.includes('eda')
           ? 'eda'
           : detectFeature(content)
-      if (feature && feature !== 'causal_analysis') {
+      if (feature) {
         await executeFeature(feature, localChatId, streamId, content.trim())
         return
       }
@@ -411,20 +482,6 @@ export function useChat(uploadedFiles: UploadedFile[]) {
       const localChatId = activeChatId
       const latestFile = uploadedFiles[0]
 
-      if (feature === 'causal_analysis') {
-        appendMessages(localChatId, [
-          { id: genId(), role: 'user', content: 'Run Causal Analysis', timestamp: new Date() },
-          {
-            id: genId(),
-            role: 'assistant',
-            content:
-              '**Causal Analysis — coming soon.** This will chain EDA, Market Research and the Insight Builder into one end-to-end causal pipeline. For now, try the individual features.',
-            timestamp: new Date(),
-          },
-        ])
-        return
-      }
-
       if (!latestFile) {
         appendMessages(localChatId, [
           {
@@ -441,6 +498,7 @@ export function useChat(uploadedFiles: UploadedFile[]) {
         eda: `Run EDA on ${latestFile.name}`,
         market_research: `Run market research on ${latestFile.name}`,
         insight_builder: `Build validated insights from ${latestFile.name}`,
+        causal_analysis: `Run full causal analysis on ${latestFile.name}`,
       }
       const streamId = `stream-${genId()}`
       appendMessages(localChatId, [

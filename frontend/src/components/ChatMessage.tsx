@@ -5,6 +5,7 @@ import type { Message } from '../types'
 import MarketResearchResult, { type MarketResearchData } from './results/MarketResearchResult'
 import EdaResult, { type EdaData } from './results/EdaResult'
 import InsightsResult, { type InsightsData } from './results/InsightsResult'
+import CausalResult, { type CausalData } from './results/CausalResult'
 
 interface Props {
   message: Message
@@ -85,6 +86,8 @@ export default function ChatMessage({ message, onFollowup }: Props) {
           <EdaResult data={message.data as EdaData} onFollowup={onFollowup} />
         ) : message.kind === 'insights' && message.data ? (
           <InsightsResult data={message.data as InsightsData} />
+        ) : message.kind === 'causal' && message.data ? (
+          <CausalResult data={message.data as CausalData} />
         ) : message.content.length > 0 ? (
           <div className="prose max-w-none">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>

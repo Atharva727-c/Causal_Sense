@@ -34,7 +34,7 @@ load_dotenv(_REPO_ROOT / "backend_fastapi" / ".env")
 from app.config import get_settings
 from app.core.exceptions import AppError, app_error_handler, generic_error_handler
 from app.database import create_tables
-from app.routers import agents, chats, eda_pipeline, files, market_research
+from app.routers import agents, causal, chats, eda_pipeline, files, market_research
 
 _s = get_settings()
 logging.basicConfig(
@@ -117,6 +117,7 @@ app.include_router(files.router,  prefix=_API)
 app.include_router(agents.router, prefix=_API)
 app.include_router(eda_pipeline.router, prefix=_API)
 app.include_router(market_research.router, prefix=_API)
+app.include_router(causal.router, prefix=_API)
 
 # Insight Builder ships its own FastAPI app (insight_builder/api/main.py);
 # mount it wholesale so the frontend reaches it through this server at

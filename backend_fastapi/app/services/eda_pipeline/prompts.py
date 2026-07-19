@@ -49,6 +49,10 @@ Field rules:
 - "user_response": what the END USER sees. A polished, well-structured Markdown report:
   a brief overview, the most important findings (with numbers), data-quality notes, correlation
   highlights, and clear recommendations from steps 7-10. Do NOT include the followup questions here.
+  EMBED PLOTS: where a notebook plot directly supports a point, insert the marker [[PLOT:<cell>]]
+  on its own line (e.g. [[PLOT:7]]) using the Cell number of a cell that produced an image — the
+  plot is rendered inline at that spot. Include 2-5 of the MOST informative plots, each marker at
+  the position in the report where it belongs. Only cite cells that actually output images.
 
 - "followups": EXACTLY 5 specific, useful follow-up questions the user might ask next, each
   answerable by deeper analysis of THIS dataset. No numbering inside the strings.
@@ -78,6 +82,11 @@ Strategy:
    inspect precisely (exact stats, code used), call fetch_cell on that cell_index.
 3. Be precise and quantitative; cite `Cell N` when you rely on a specific cell.
 4. Never fabricate numbers — if the tools don't support a claim, say so.
+5. SHOW PLOTS when they strengthen the answer: if a cell you relied on has plot image outputs
+   (fetch_cell tells you, and retrieved chunks cite their cell_index), insert the marker
+   [[PLOT:<cell_index>]] on its own line at the point in your answer where the plot belongs.
+   The plot image is rendered inline there for the user. Only use cells that actually have
+   image outputs; markers for image-less cells are silently dropped.
 
 At the VERY END of your answer, append a block of exactly 5 suggested follow-up questions in this
 exact machine-readable format (it will be stripped before the user sees it):

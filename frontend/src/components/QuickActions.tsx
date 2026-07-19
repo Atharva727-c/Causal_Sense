@@ -81,7 +81,7 @@ const ACTIONS: Action[] = [
       </svg>
     ),
     label: 'Causal Analysis',
-    desc: 'Full pipeline — coming soon',
+    desc: 'EDA → Research → Insights',
     feature: 'causal_analysis',
   },
 ]

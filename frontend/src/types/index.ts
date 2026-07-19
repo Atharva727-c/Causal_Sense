@@ -10,7 +10,7 @@ export interface Message {
   timestamp: Date
   streaming?: boolean
   // Structured feature results (rendered by dedicated components instead of markdown)
-  kind?: 'text' | 'eda' | 'market_research' | 'insights'
+  kind?: 'text' | 'eda' | 'market_research' | 'insights' | 'causal'
   data?: unknown
 }
 

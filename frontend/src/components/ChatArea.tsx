@@ -164,13 +164,14 @@ export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload,
         onMouseEnter={() => setInWelcome(chat.messages.length === 0)}
         onMouseLeave={() => setInWelcome(false)}
       >
-        <AnimatePresence mode="wait">
-          {chat.messages.length === 0 ? (
+        {/* Plain conditional render — AnimatePresence mode="wait" could wedge
+            here (welcome faded to opacity 0 but never unmounted under
+            StrictMode, so the message list never appeared). */}
+        {chat.messages.length === 0 ? (
             <motion.div
               key="welcome"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
               style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100%', padding: '40px 32px',
@@ -306,7 +307,6 @@ export default function ChatArea({ chat, chatTitle, isLoading, onSend, onUpload,
               <div ref={bottomRef} />
             </motion.div>
           )}
-        </AnimatePresence>
       </div>
 
       {/* ── Input ── */}

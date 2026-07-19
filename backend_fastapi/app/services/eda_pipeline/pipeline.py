@@ -27,6 +27,7 @@ _s = get_settings()
 
 _FOLLOWUP_BLOCK = re.compile(r"<<FOLLOWUPS>>(.*?)<<END>>", re.DOTALL | re.IGNORECASE)
 _FOLLOWUP_LINE = re.compile(r"^\s*\d+[.)]\s*(.+?)\s*$", re.MULTILINE)
+_PLOT_MARKER = re.compile(r"\[\[\s*PLOT\s*:\s*(\d+)\s*\]\]")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -40,6 +41,53 @@ def strip_followups(text: str) -> tuple[str, list[str]]:
     questions = [q.strip() for q in _FOLLOWUP_LINE.findall(m.group(1)) if q.strip()]
     clean = (text[: m.start()] + text[m.end():]).strip()
     return clean, questions[:5]
+
+
+def attach_plot_images(
+    text: str,
+    *,
+    cells: Optional[list] = None,
+    ws: Optional[Workspace] = None,
+    max_cells: int = 8,
+    max_per_cell: int = 2,
+) -> tuple[str, dict[str, list[str]]]:
+    """Resolve ``[[PLOT:<cell>]]`` markers the LLM placed in *text*.
+
+    Returns (text, images): markers pointing at cells that really have image
+    outputs are normalised to ``[[PLOT:N]]`` and their PNGs returned as data
+    URIs keyed by cell number; markers for image-less cells are removed so a
+    hallucinated cell number degrades to plain text instead of a broken image.
+    """
+    ids: list[int] = []
+    for m in _PLOT_MARKER.finditer(text):
+        c = int(m.group(1))
+        if c not in ids:
+            ids.append(c)
+    if not ids:
+        return text, {}
+
+    if cells is None:
+        if ws is None or not ws.notebook_path.exists():
+            return _PLOT_MARKER.sub("", text), {}
+        cells = nb.parse_notebook(ws.notebook_path)
+    by_idx = {c.index: c for c in cells}
+
+    images: dict[str, list[str]] = {}
+    for cid in ids[:max_cells]:
+        cell = by_idx.get(cid)
+        if cell is not None and cell.images:
+            images[str(cid)] = [
+                f"data:image/png;base64,{img}" for img in cell.images[:max_per_cell]
+            ]
+
+    def _normalise(m: re.Match) -> str:
+        return f"[[PLOT:{int(m.group(1))}]]" if str(int(m.group(1))) in images else ""
+
+    return _PLOT_MARKER.sub(_normalise, text), images
+
+
+def strip_plot_markers(text: str) -> str:
+    return _PLOT_MARKER.sub("", text)
 
 
 def _index_detailed(ws: Workspace, detailed: str, source: str) -> int:
@@ -110,10 +158,14 @@ def run_initial_eda(
     # 5) Chunk the detailed writeup into the vector store, then delete it.
     n_chunks = _index_detailed(ws, detailed, source="turn1")
 
+    # 6) Resolve [[PLOT:cell]] markers into inline plot images.
+    user_response, plot_images = attach_plot_images(user_response, cells=cells)
+
     return {
         "ok": True,
         "session_id": session_id,
         "response": user_response,
+        "images": plot_images,
         "followups": followups,
         "artifacts": {
             "notebook": str(run["notebook"]),
@@ -142,18 +194,24 @@ def answer_followup(session_id: str, question: str) -> dict[str, Any]:
     answer, followups = strip_followups(raw)
 
     # Accumulate: append a concise fact + index the answer for future retrieval.
+    # Plot markers are stripped from what we persist — they only matter for display.
     turn_id = uuid.uuid4().hex[:8]
+    clean_answer = strip_plot_markers(answer)
     FactsFile(ws).append_turn(
         label=f"Follow-up: {question[:80]}",
-        facts_markdown=answer[:600],
+        facts_markdown=clean_answer[:600],
     )
-    detailed_block = f"[[SECTION=Follow-up Q&A | KIND=followup]]\nQ: {question}\n\nA: {answer}"
+    detailed_block = f"[[SECTION=Follow-up Q&A | KIND=followup]]\nQ: {question}\n\nA: {clean_answer}"
     _index_detailed(ws, detailed_block, source=f"turn-{turn_id}")
+
+    # Resolve [[PLOT:cell]] markers into inline plot images (re-reads the notebook).
+    answer, plot_images = attach_plot_images(answer, ws=ws)
 
     return {
         "ok": True,
         "session_id": session_id,
         "response": answer,
+        "images": plot_images,
         "followups": followups,
         "mock": not dial.available(),
     }

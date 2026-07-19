@@ -202,7 +202,10 @@ def render_cell(cell: ParsedCell, *, include_images: bool = False) -> str:
     if cell.text_output:
         parts.append(f"Output:\n{cell.text_output}")
     if cell.images:
-        note = f"[{len(cell.images)} image output(s) available]"
+        note = (
+            f"[{len(cell.images)} plot image(s) available — to show them to the user, "
+            f"put the marker [[PLOT:{cell.index}]] on its own line in your final answer]"
+        )
         parts.append(note)
     return "\n".join(parts)
 
