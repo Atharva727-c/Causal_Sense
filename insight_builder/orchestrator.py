@@ -229,6 +229,17 @@ def _node_rank_kpis(state: dict[str, Any]) -> dict[str, Any]:
     return {"top_kpis": rank_business_kpis(state["kpi_results"], top_n=10)}
 
 
+# Validated insights already come out of apply_gates() sorted by rank_score
+# (highest first), so "top" is just the first slice -- no separate ranking
+# function needed the way KPIs need one (KPI facts have no single comparable
+# score across their differently-shaped types).
+TOP_INSIGHTS_COUNT = 10
+
+
+def _node_top_insights(state: dict[str, Any]) -> dict[str, Any]:
+    return {"top_insights": state["validated"][:TOP_INSIGHTS_COUNT]}
+
+
 def _node_executive_summary(state: dict[str, Any]) -> dict[str, Any]:
     summary = generate_executive_summary(
         state["validated"], state["top_kpis"], state.get("market")
@@ -260,6 +271,7 @@ def _node_assemble_report(state: dict[str, Any]) -> dict[str, Any]:
         "kpis": state["kpi_results"],
         "top_kpis": state["top_kpis"],
         "insights": state["validated"],
+        "top_insights": state["top_insights"],
         "not_significant": state["not_significant"],
         "failed_tests": state["failed_tests"],
         "executive_summary": state.get("executive_summary"),
@@ -319,12 +331,16 @@ def build_insight_graph() -> StateGraph:
         optional=True,
     )
     graph.add_node("rank_kpis", _node_rank_kpis, after=["narrate"])
+    graph.add_node("top_insights", _node_top_insights, after=["narrate"])
     graph.add_node(
         "executive_summary", _node_executive_summary, after=["rank_kpis", "enrich_with_market"],
         condition=lambda s: llm_available(), condition_label="LLM not configured",
         optional=True,
     )
-    graph.add_node("assemble_report", _node_assemble_report, after=["executive_summary", "rank_kpis"])
+    graph.add_node(
+        "assemble_report", _node_assemble_report,
+        after=["executive_summary", "rank_kpis", "top_insights"],
+    )
     return graph
 
 

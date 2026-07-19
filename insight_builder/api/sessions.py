@@ -39,6 +39,11 @@ class Session:
     # through the same underlying facts instead of re-running the whole
     # (expensive) candidate pipeline just to look further down the list.
     kpi_cache: list[dict[str, Any]] | None = None
+    # The full validated-insights list (already rank_score-sorted) from the
+    # last /analyze call, cached so a later "show me more insights" request
+    # can page further down the same ordering instead of re-running the
+    # pipeline just to look further down the list.
+    insights_cache: list[dict[str, Any]] | None = None
     audit_dir: Path = field(init=False)
 
     def __post_init__(self) -> None:

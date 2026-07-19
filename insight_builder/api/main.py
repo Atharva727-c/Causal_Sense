@@ -118,7 +118,33 @@ def analyze(session_id: str, body: AnalyzeRequest) -> dict:
     # Cache the full (unranked) KPI fact list so GET .../kpis can page further
     # down the same ranking without re-running the whole candidate pipeline.
     session.kpi_cache = report["kpis"]
+    session.insights_cache = report["insights"]
     return report
+
+
+@app.get("/datasets/{session_id}/insights")
+def insights(session_id: str, offset: int = 0, limit: int = 10) -> dict:
+    """Paginate through the validated insights from the last /analyze call.
+    They're already rank_score-sorted by apply_gates(), so "show me more"
+    just continues further down the same ordering. Call /analyze at least
+    once first -- insights aren't computed from scratch here."""
+    session = get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Unknown session_id")
+    if session.insights_cache is None:
+        raise HTTPException(status_code=400, detail="No analysis yet; call POST .../analyze first")
+    if offset < 0 or limit < 1:
+        raise HTTPException(status_code=400, detail="offset must be >= 0 and limit must be >= 1")
+
+    page = session.insights_cache[offset:offset + limit]
+    return {
+        "insights": page,
+        "offset": offset,
+        "limit": limit,
+        "returned": len(page),
+        "total_available": len(session.insights_cache),
+        "has_more": offset + len(page) < len(session.insights_cache),
+    }
 
 
 @app.get("/datasets/{session_id}/kpis")
